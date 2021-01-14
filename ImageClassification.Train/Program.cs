@@ -17,18 +17,20 @@ namespace ImageClassification.Train
         static void Main()
         {
             const string assetsRelativePath = @"../../../assets";
-            string assetsPath = GetAbsolutePath(assetsRelativePath);
-
             const string inputs = "inputs";
             const string outputs = "outputs";
+            const string imagesFolder = "images";
+            const string testImagesFolder = "test-images";
+
+            string assetsPath = GetAbsolutePath(assetsRelativePath);
 
             Directory.CreateDirectory(Path.Join(assetsRelativePath, inputs));
             Directory.CreateDirectory(Path.Join(assetsRelativePath, outputs));
 
             string outputMlNetModelFilePath = Path.Combine(assetsPath, outputs, "imageClassifier.zip");
-            string imagesFolderPathForPredictions = Path.Combine(assetsPath, inputs, "test-images");
+            string imagesFolderPathForPredictions = Path.Combine(assetsPath, inputs, testImagesFolder);
 
-            string imagesDownloadFolderPath = Path.Combine(assetsPath, inputs, "images");
+            string imagesDownloadFolderPath = Path.Combine(assetsPath, inputs, imagesFolder);
 
             // 1. Download the image set and unzip
             string finalImagesFolderName = DownloadImageSet(imagesDownloadFolderPath);
@@ -164,21 +166,6 @@ namespace ImageClassification.Train
 
         public static string DownloadImageSet(string imagesDownloadFolder)
         {
-            // get a set of images to teach the network about the new classes
-
-            //SINGLE SMALL FLOWERS IMAGESET (200 files)
-            //const string fileName = "flower_photos_small_set.zip";
-            //var url = $"https://mlnetfilestorage.file.core.windows.net/imagesets/flower_images/flower_photos_small_set.zip?st=2019-08-07T21%3A27%3A44Z&se=2030-08-08T21%3A27%3A00Z&sp=rl&sv=2018-03-28&sr=f&sig=SZ0UBX47pXD0F1rmrOM%2BfcwbPVob8hlgFtIlN89micM%3D";
-            //Web.Download(url, imagesDownloadFolder, fileName);
-            //Compress.UnZip(Path.Join(imagesDownloadFolder, fileName), imagesDownloadFolder);
-
-            //SINGLE FULL FLOWERS IMAGESET (3,600 files)
-            //string fileName = "flower_photos.tgz";
-            //string url = $"http://download.tensorflow.org/example_images/{fileName}";
-            //Web.Download(url, imagesDownloadFolder, fileName);
-            //Compress.ExtractTGZ(Path.Join(imagesDownloadFolder, fileName), imagesDownloadFolder);
-
-            // CUSTOM FILE
             const string fileName = "categories.zip";
             string directory = Path.GetFileNameWithoutExtension(fileName);
             Compress.UnZip(Path.Join(imagesDownloadFolder, fileName), Path.Join(imagesDownloadFolder, directory));
