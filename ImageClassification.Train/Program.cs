@@ -19,10 +19,16 @@ namespace ImageClassification.Train
             const string assetsRelativePath = @"../../../assets";
             string assetsPath = GetAbsolutePath(assetsRelativePath);
 
-            string outputMlNetModelFilePath = Path.Combine(assetsPath, "outputs", "imageClassifier.zip");
-            string imagesFolderPathForPredictions = Path.Combine(assetsPath, "inputs", "test-images");
+            const string inputs = "inputs";
+            const string outputs = "outputs";
 
-            string imagesDownloadFolderPath = Path.Combine(assetsPath, "inputs", "images");
+            Directory.CreateDirectory(Path.Join(assetsRelativePath, inputs));
+            Directory.CreateDirectory(Path.Join(assetsRelativePath, outputs));
+
+            string outputMlNetModelFilePath = Path.Combine(assetsPath, outputs, "imageClassifier.zip");
+            string imagesFolderPathForPredictions = Path.Combine(assetsPath, inputs, "test-images");
+
+            string imagesDownloadFolderPath = Path.Combine(assetsPath, inputs, "images");
 
             // 1. Download the image set and unzip
             string finalImagesFolderName = DownloadImageSet(imagesDownloadFolderPath);
