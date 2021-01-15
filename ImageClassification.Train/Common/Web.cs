@@ -1,22 +1,21 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Threading;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ImageClassification.Train.Common
 {
     public class Web
     {
-        public static bool Download(string url, string destDir, string destFileName)
+        public static async Task<bool> Download(string url, string directory, string file, IProgress<float> progress = null)
         {
-            if (destFileName == null)
-                destFileName = url.Split(Path.DirectorySeparatorChar).Last();
+            if (file == null)
+                file = url.Split(Path.DirectorySeparatorChar).Last();
 
-            Directory.CreateDirectory(destDir);
+            Directory.CreateDirectory(directory);
 
-            string relativeFilePath = Path.Combine(destDir, destFileName);
+            string relativeFilePath = Path.Combine(directory, file);
 
             if (File.Exists(relativeFilePath))
             {
@@ -24,16 +23,11 @@ namespace ImageClassification.Train.Common
                 return false;
             }
 
-            var wc = new WebClient();
-            Console.WriteLine($"Downloading {relativeFilePath}");
-            var download = Task.Run(() => wc.DownloadFile(url, relativeFilePath));
-            while (!download.IsCompleted)
+            using (var client = new HttpClient())
             {
-                Thread.Sleep(1000);
-                Console.Write(".");
+                using var stream = new FileStream(relativeFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
+                await client.DownloadAsync(url, stream, progress);
             }
-            Console.WriteLine("");
-            Console.WriteLine($"Downloaded {relativeFilePath}");
 
             return true;
         }

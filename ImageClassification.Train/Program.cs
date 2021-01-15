@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using ImageClassification.Shared;
-using ImageClassification.Shared.DataModels;
+using ImageClassification.Core.Train.DataModels;
 using ImageClassification.Train.Common;
-using ImageClassification.Train.DataModels;
 using Microsoft.ML;
-using static Microsoft.ML.Transforms.ValueToKeyMappingEstimator;
+using Microsoft.ML.Data;
+using static Microsoft.ML.Vision.ImageClassificationTrainer;
 
 namespace ImageClassification.Train
 {
@@ -16,197 +12,159 @@ namespace ImageClassification.Train
     {
         static void Main()
         {
-            const string assetsRelativePath = @"../../../assets";
-            const string inputs = "inputs";
-            const string outputs = "outputs";
-            const string imagesFolder = "images";
-            const string testImagesFolder = "test-images";
+            #region Paths
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var projectDirectory = Path.Combine(currentDirectory, "..", "..", "..");
+            var source = Path.Combine(projectDirectory, "assets", "inputs", "images", "data-set.zip");
+            var destination = Path.Combine(projectDirectory, "assets", "outputs", "classifier.zip");
+            #endregion
 
-            string assetsPath = GetAbsolutePath(assetsRelativePath);
+            DownloadDataSet(source);
 
-            Directory.CreateDirectory(Path.Join(assetsRelativePath, inputs));
-            Directory.CreateDirectory(Path.Join(assetsRelativePath, outputs));
-
-            string outputMlNetModelFilePath = Path.Combine(assetsPath, outputs, "imageClassifier.zip");
-            string imagesFolderPathForPredictions = Path.Combine(assetsPath, inputs, testImagesFolder);
-
-            string imagesDownloadFolderPath = Path.Combine(assetsPath, inputs, imagesFolder);
-
-            // 1. Download the image set and unzip
-            string finalImagesFolderName = DownloadImageSet(imagesDownloadFolderPath);
-            string fullImagesetFolderPath = Path.Combine(imagesDownloadFolderPath, finalImagesFolderName);
-
-            var mlContext = new MLContext(seed: 1);
-
-            // Specify MLContext Filter to only show feedback log/traces about ImageClassification
-            // This is not needed for feedback output if using the explicit MetricsCallback parameter
-            mlContext.Log += FilterMLContextLog;
-
-            // 2. Load the initial full image-set into an IDataView and shuffle so it'll be better balanced
-            IEnumerable<ImageData> images = LoadImagesFromDirectory(folder: fullImagesetFolderPath, useFolderNameAsLabel: true);
-            IDataView fullImagesDataset = mlContext.Data.LoadFromEnumerable(images);
-            IDataView shuffledFullImageFilePathsDataset = mlContext.Data.ShuffleRows(fullImagesDataset);
-
-            // 3. Load Images with in-memory type within the IDataView and Transform Labels to Keys (Categorical)
-            IDataView shuffledFullImagesDataset = mlContext.Transforms.Conversion.
-                    MapValueToKey(outputColumnName: "LabelAsKey", inputColumnName: "Label", keyOrdinality: KeyOrdinality.ByValue)
-                .Append(mlContext.Transforms.LoadRawImageBytes(
-                                                outputColumnName: "Image",
-                                                imageFolder: fullImagesetFolderPath,
-                                                inputColumnName: "ImagePath"))
-                .Fit(shuffledFullImageFilePathsDataset)
-                .Transform(shuffledFullImageFilePathsDataset);
-
-            // 4. Split the data 80:20 into train and test sets, train and evaluate.
-            var trainTestData = mlContext.Data.TrainTestSplit(shuffledFullImagesDataset, testFraction: 0.2);
-            IDataView trainDataView = trainTestData.TrainSet;
-            IDataView testDataView = trainTestData.TestSet;
-
-            // 5. Define the model's training pipeline using DNN default values
-            //
-            var pipeline = mlContext.MulticlassClassification.Trainers
-                    .ImageClassification(featureColumnName: "Image",
-                                         labelColumnName: "LabelAsKey",
-                                         validationSet: testDataView)
-                .Append(mlContext.Transforms.Conversion.MapKeyToValue(outputColumnName: "PredictedLabel",
-                                                                      inputColumnName: "PredictedLabel"));
-
-            // 5.1 (OPTIONAL) Define the model's training pipeline by using explicit hyper-parameters
-            //
-            //var options = new ImageClassificationTrainer.Options()
-            //{
-            //    FeatureColumnName = "Image",
-            //    LabelColumnName = "LabelAsKey",
-            //    // Just by changing/selecting InceptionV3/MobilenetV2/ResnetV250  
-            //    // you can try a different DNN architecture (TensorFlow pre-trained model). 
-            //    Arch = ImageClassificationTrainer.Architecture.MobilenetV2,
-            //    Epoch = 50,       //100
-            //    BatchSize = 10,
-            //    LearningRate = 0.01f,
-            //    MetricsCallback = (metrics) => Console.WriteLine(metrics),
-            //    ValidationSet = testDataView
-            //};
-
-            //var pipeline = mlContext.MulticlassClassification.Trainers.ImageClassification(options)
-            //        .Append(mlContext.Transforms.Conversion.MapKeyToValue(
-            //            outputColumnName: "PredictedLabel",
-            //            inputColumnName: "PredictedLabel"));
-
-            // 6. Train/create the ML model
-            Console.WriteLine("*** Training the image classification model with DNN Transfer Learning on top of the selected pre-trained model/architecture ***");
-
-            // Measuring training time
-            var watch = Stopwatch.StartNew();
-
-            //Train
-            ITransformer trainedModel = pipeline.Fit(trainDataView);
-
-            watch.Stop();
-            var elapsedMs = watch.ElapsedMilliseconds;
-
-            Console.WriteLine($"Training with transfer learning took: {elapsedMs / 1000} seconds");
-
-            // 7. Get the quality metrics (accuracy, etc.)
-            EvaluateModel(mlContext, testDataView, trainedModel);
-
-            // 8. Save the model to assets/outputs (You get ML.NET .zip model file and TensorFlow .pb model file)
-            mlContext.Model.Save(trainedModel, trainDataView.Schema, outputMlNetModelFilePath);
-            Console.WriteLine($"Model saved to: {outputMlNetModelFilePath}");
-
-            // 9. Try a single prediction simulating an end-user app
-            TrySinglePrediction(imagesFolderPathForPredictions, mlContext, trainedModel);
-
-            Console.WriteLine("Press any key to finish");
-            Console.ReadKey();
-        }
-
-        private static void EvaluateModel(MLContext mlContext, IDataView testDataset, ITransformer trainedModel)
-        {
-            Console.WriteLine("Making predictions in bulk for evaluating model's quality...");
-
-            // Measuring time
-            var watch = Stopwatch.StartNew();
-
-            var predictionsDataView = trainedModel.Transform(testDataset);
-
-            var metrics = mlContext.MulticlassClassification.Evaluate(predictionsDataView, labelColumnName: "LabelAsKey", predictedLabelColumnName: "PredictedLabel");
-            ConsoleHelper.PrintMultiClassClassificationMetrics("TensorFlow DNN Transfer Learning", metrics);
-
-            watch.Stop();
-            var elapsed2Ms = watch.ElapsedMilliseconds;
-
-            Console.WriteLine($"Predicting and Evaluation took: {elapsed2Ms / 1000} seconds");
-        }
-
-        private static void TrySinglePrediction(string imagesFolderPathForPredictions, MLContext mlContext, ITransformer trainedModel)
-        {
-            // Create prediction function to try one prediction
-            var predictionEngine = mlContext.Model
-                .CreatePredictionEngine<InMemoryImageData, ImagePrediction>(trainedModel);
-
-            var testImages = FileUtils.LoadInMemoryImagesFromDirectory(
-                imagesFolderPathForPredictions, false);
-
-            var imageToPredict = testImages.First();
-
-            var prediction = predictionEngine.Predict(imageToPredict);
-
-            Console.WriteLine(
-                $"Image Filename : [{imageToPredict.ImageFileName}], " +
-                $"Scores : [{string.Join(",", prediction.Score)}], " +
-                $"Predicted Label : {prediction.PredictedLabel}");
-        }
-
-
-        public static IEnumerable<ImageData> LoadImagesFromDirectory(
-            string folder,
-            bool useFolderNameAsLabel = true)
-            => FileUtils.LoadImagesFromDirectory(folder, useFolderNameAsLabel)
-                .Select(x => new ImageData(x.imagePath, x.label));
-
-        public static string DownloadImageSet(string imagesDownloadFolder)
-        {
-            const string fileName = "categories.zip";
-            string directory = Path.GetFileNameWithoutExtension(fileName);
-            Compress.UnZip(Path.Join(imagesDownloadFolder, fileName), Path.Join(imagesDownloadFolder, directory));
-
-            return directory;
-        }
-
-        public static string GetAbsolutePath(string relativePath)
-            => FileUtils.GetAbsolutePath(typeof(Program).Assembly, relativePath);
-
-        public static void ConsoleWriteImagePrediction(string ImagePath, string Label, string PredictedLabel, float Probability)
-        {
-            var defaultForeground = Console.ForegroundColor;
-            var labelColor = ConsoleColor.Magenta;
-            var probColor = ConsoleColor.Blue;
-
-            Console.Write("Image File: ");
-            Console.ForegroundColor = labelColor;
-            Console.Write($"{Path.GetFileName(ImagePath)}");
-            Console.ForegroundColor = defaultForeground;
-            Console.Write(" original labeled as ");
-            Console.ForegroundColor = labelColor;
-            Console.Write(Label);
-            Console.ForegroundColor = defaultForeground;
-            Console.Write(" predicted as ");
-            Console.ForegroundColor = labelColor;
-            Console.Write(PredictedLabel);
-            Console.ForegroundColor = defaultForeground;
-            Console.Write(" with score ");
-            Console.ForegroundColor = probColor;
-            Console.Write(Probability);
-            Console.ForegroundColor = defaultForeground;
-            Console.WriteLine("");
-        }
-
-        private static void FilterMLContextLog(object sender, LoggingEventArgs e)
-        {
-            if (e.Message.StartsWith("[Source=ImageClassificationTrainer;"))
+            var trainer = new Core.Train.TrainWrapper(source)
             {
-                Console.WriteLine(e.Message);
+                MeasureTime = true
+            };
+
+            trainer.ImageMetricsUpdated += ConsoleImageMetricsUpdated;
+            trainer.Log += ConsoleLog;
+            trainer.MulticlassMetricsUpdated += ConsoleMulticlassMetricsUpdated;
+            trainer.StepChanged += ConsoleStepChanged;
+
+            bool success;
+            Directory.CreateDirectory(Path.GetDirectoryName(destination));
+            using (var stream = new FileStream(destination, FileMode.CreateNew))
+            {
+                success = trainer.TryTrainAsync(stream).Result;
             }
+
+            #region Results
+            Console.WriteLine();
+            Console.WriteLine("Trainning process has been finished {0}",
+                (success ? "successfully" : "with failure, check the logs."));
+            Console.WriteLine();
+            Console.WriteLine("Enter anykey to exit...");
+            Console.ReadKey();
+            #endregion
         }
+
+        #region Handlers
+        private static void ConsoleImageMetricsUpdated(ImageClassificationMetrics metrics)
+        {
+            Console.WriteLine(new string('*', 30));
+
+            if (metrics.Train is TrainMetrics trainMetrics)
+            {
+                Console.WriteLine("Accuracy: {0}", trainMetrics.Accuracy);
+                Console.WriteLine("- Accuracy of the batch on this Epoch. Higher the better.");
+
+                Console.WriteLine("Batch Processed Count: {0}", trainMetrics.BatchProcessedCount);
+                Console.WriteLine("- The number of batches processed in an epoch.");
+
+                Console.WriteLine("Cross-Entropy: {0}", trainMetrics.CrossEntropy);
+                Console.WriteLine("- Cross-Entropy (loss) of the batch on this Epoch. Lower the better.");
+
+                Console.WriteLine("Epoch: {0}", trainMetrics.Epoch);
+                Console.WriteLine("- The training epoch index for which this metric is reported.");
+
+                Console.WriteLine("Learning Rate: {0}", trainMetrics.LearningRate);
+                Console.WriteLine("- Learning Rate used for this Epoch. Changes for learning rate scheduling.");
+            }
+
+            if (metrics.Bottleneck is BottleneckMetrics bottleneckMetrics)
+            {
+                Console.WriteLine("Type of metrics: {0}", bottleneckMetrics.DatasetUsed);
+
+                Console.WriteLine("Image with index {0} was processed out.", bottleneckMetrics.Index);
+            }
+
+            Console.WriteLine(new string('*', 30));
+            Console.WriteLine();
+        }
+        private static void ConsoleLog(object sender, LoggingEventArgs e)
+        {
+            Console.WriteLine("~~~ {0}", e.Message);
+        }
+        private static void ConsoleMulticlassMetricsUpdated(MulticlassClassificationMetrics metrics)
+        {
+            Console.WriteLine(new string('=', 30));
+
+            Console.WriteLine("Log-loss: {0}", metrics.LogLoss);
+            Console.WriteLine("Log-loss measures the performance of a classifier with respect to how much the predicted probabilities diverge from the true class label. Lower log-loss indicates a better model. A perfect model, which predicts a probability of 1 for the true class, will have a log-loss of 0.");
+            Console.WriteLine("Log-loss Reduction: {0}", metrics.LogLossReduction);
+            Console.WriteLine("It gives a measure of how much a model improves on a model that gives random predictions. Log-loss reduction closer to 1 indicates a better model.");
+            Console.WriteLine("Macro Accuracy: {0}", metrics.MacroAccuracy);
+            Console.WriteLine("The accuracy for each class is computed and the macro-accuracy is the average of these accuracies. The macro-average metric gives the same weight to each class, no matter how many instances from that class the dataset contains.");
+            Console.WriteLine("Micro Accuracy: {0}", metrics.MicroAccuracy);
+            Console.WriteLine("The micro-average is the fraction of instances predicted correctly across all classes. Micro-average can be a more useful metric than macro-average if class imbalance is suspected.");
+            Console.WriteLine("This is the relative number of examples where the true label one of the top K predicted labels by the predictor.");
+            Console.WriteLine("Top K Prediction Count: {0}", metrics.TopKPredictionCount);
+            Console.WriteLine("Top K Accuracy: {0}", metrics.TopKAccuracy);
+            Console.WriteLine("If positive, this indicates the K in Top K Accuracy and Top K Accuracy for all K.");
+            if (metrics.TopKAccuracyForAllK?.Count > 0)
+            {
+                Console.WriteLine("Top K Accuracy for all K: ({0})", string.Join(", ", metrics.TopKAccuracyForAllK));
+            }
+            if (metrics.PerClassLogLoss?.Count > 0)
+            {
+                Console.WriteLine("Per Class Log-loss: ({0})", string.Join(", ", metrics.PerClassLogLoss));
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(metrics.ConfusionMatrix.GetFormattedConfusionTable());
+            Console.WriteLine();
+
+            Console.WriteLine(new string('=', 30));
+        }
+        private static void ConsoleStepChanged(TrainProgress progress)
+        {
+            Console.WriteLine(new string('-', 30));
+            Console.WriteLine();
+
+            if (progress.Current is Core.Train.TrainStepStatus status)
+            {
+                Console.WriteLine("Current step is {0}", status);
+            }
+
+            Console.WriteLine("Message: {0}", progress.Message);
+
+            if (progress.Elapsed is TimeSpan elapsed)
+            {
+                Console.WriteLine("Step took {0}", elapsed);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(new string('-', 30));
+        }
+        #endregion
+
+        #region Helpers
+        private static void DownloadDataSet(string fileName)
+        {
+            const string zip = @"https://github.com/bladehero/ImageClassification.DataSets/blob/master/data-set.zip?raw=true";
+            const float percentPerSection = 0.02f;
+            const int total = 1;
+            var progress = new Progress<float>();
+            Console.WriteLine($"Downloading archive:");
+            Console.Write(new string('-', (int)(total / percentPerSection)));
+            Console.SetCursorPosition(0, Console.CursorTop);
+
+            var _lock = new object();
+            progress.ProgressChanged += (_, percentage) =>
+            {
+                lock (_lock)
+                {
+                    if (Console.CursorLeft <= percentage / percentPerSection)
+                    {
+                        Console.Write('■');
+                    }
+                }
+            };
+
+            Web.Download(zip, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), progress).Wait();
+            Console.WriteLine();
+            Console.WriteLine($"Downloaded");
+        }
+        #endregion
     }
 }

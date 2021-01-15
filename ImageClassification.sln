@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageClassification.API", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageClassification.Preparation", "ImageClassification.Preparation\ImageClassification.Preparation.csproj", "{A8739988-79BB-4737-AE09-34984D88E28C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageClassification.Train", "ImageClassification.Train\ImageClassification.Train.csproj", "{ABBC91E9-7EEB-468E-A23D-FE03D7FF6F8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageClassification.Train", "ImageClassification.Train\ImageClassification.Train.csproj", "{ABBC91E9-7EEB-468E-A23D-FE03D7FF6F8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageClassification.Shared", "ImageClassification.Shared\ImageClassification.Shared.csproj", "{547243D2-B955-4C49-A384-659285CCAF36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageClassification.Shared", "ImageClassification.Shared\ImageClassification.Shared.csproj", "{547243D2-B955-4C49-A384-659285CCAF36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageClassification.Core", "ImageClassification.Core\ImageClassification.Core.csproj", "{2655181F-6B45-42F6-ADFD-BDCC351C366D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{547243D2-B955-4C49-A384-659285CCAF36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{547243D2-B955-4C49-A384-659285CCAF36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{547243D2-B955-4C49-A384-659285CCAF36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2655181F-6B45-42F6-ADFD-BDCC351C366D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2655181F-6B45-42F6-ADFD-BDCC351C366D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2655181F-6B45-42F6-ADFD-BDCC351C366D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2655181F-6B45-42F6-ADFD-BDCC351C366D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

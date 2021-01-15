@@ -1,4 +1,4 @@
-﻿namespace ImageClassification.Train.DataModels
+﻿namespace ImageClassification.Core.Train.DataModels
 {
     public class ImageData
     {
