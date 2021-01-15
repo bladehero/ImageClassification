@@ -124,7 +124,7 @@ namespace ImageClassification.Core.Train
             }
             catch (InvalidOperationException)
             {
-                throw new ArgumentException($"There is no step with the name: {stepName}", nameof(stepName));
+                return ThrowHelper.Argument<ITrainStep>($"There is no step with the name: {stepName}", nameof(stepName));
             }
         }
 
@@ -145,10 +145,12 @@ namespace ImageClassification.Core.Train
             }
             catch (InvalidCastException ex)
             {
-                throw new InvalidOperationException($"Provided incorrect generic parameters " +
+                return ThrowHelper.InvalidOperation<ITrainStep<D, TResult>>(
+                    $"Provided incorrect generic parameters " +
                     $"with data type: `{typeof(D).FullName}` " +
                     $"and result type: `{typeof(TResult).FullName}`, " +
-                    $"for mapping of type {step.GetType().FullName}!", ex);
+                    $"for mapping of type {step.GetType().FullName}!", ex
+                );
             }
         }
 
@@ -177,7 +179,7 @@ namespace ImageClassification.Core.Train
 
             if (trainSteps?.Count == 0)
             {
-                throw new InvalidOperationException("Sequence contains no elements");
+                ThrowHelper.InvalidOperation("Sequence contains no elements");
             }
         }
         #endregion

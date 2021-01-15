@@ -1,6 +1,5 @@
 ﻿using ImageClassification.Core.Train.Common;
 using ImageClassification.Core.Train.Models;
-using ImageClassification.Core.Train.Exceptions;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using System;
@@ -43,7 +42,7 @@ namespace ImageClassification.Core.Train
             {
                 if (value is null)
                 {
-                    throw new NullReferenceException($"{nameof(StepAssembly)} must be a valid, non-nullable value!");
+                    ThrowHelper.NullReference(nameof(StepAssembly));
                 }
 
                 StepCollection.StepAssembly = value;
@@ -59,7 +58,7 @@ namespace ImageClassification.Core.Train
             {
                 if (value is null)
                 {
-                    throw new NullReferenceException($"{nameof(StepCaptureAttributeType)} must be a valid, non-nullable value!");
+                    ThrowHelper.NullReference(nameof(StepCaptureAttributeType));
                 }
 
                 StepCollection.StepCaptureAttributeType = value;
@@ -84,7 +83,7 @@ namespace ImageClassification.Core.Train
             {
                 if (value <= 0 || value >= 1)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(TestFraction), value, "Test fraction should be between 0 and 1");
+                    ThrowHelper.ArgumentOutOfRange(nameof(TestFraction), value, "Test fraction should be between 0 and 1");
                 }
                 testFraction = value;
             }
@@ -148,7 +147,7 @@ namespace ImageClassification.Core.Train
 
             if (File.Exists(path) == false && Directory.Exists(path) == false)
             {
-                throw new SystemEntryNotFoundException { Path = path };
+                ThrowHelper.SystemEntryNotFound(path);
             }
 
             if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
@@ -165,7 +164,7 @@ namespace ImageClassification.Core.Train
                 }
                 else
                 {
-                    throw new InvalidZipFileException { Path = path };
+                    ThrowHelper.InvalidZipFile(path);
                 }
             }
         }
@@ -178,6 +177,8 @@ namespace ImageClassification.Core.Train
         /// <returns>Boolean flag of success.</returns>
         public async Task<bool> TrainAsync(Stream stream)
         {
+            var totalElapsed = new TimeSpan();
+
             if (MeasureTime)
             {
                 Stopwatch = Stopwatch.StartNew();
@@ -187,41 +188,49 @@ namespace ImageClassification.Core.Train
             {
                 var unarchiving = StepCollection.GetStep<(string, string), Task>(StepName.Unarchiving);
                 await unarchiving.Execute((Archive, Folder));
+                totalElapsed += Stopwatch.RestartPull();
             }
 
             var prepareDataSet = StepCollection.GetStep<(string, MLContext), IDataView>(StepName.PreparingDataSet);
             var shuffledDataSet = prepareDataSet.Execute((Folder, mlContext));
+            totalElapsed += Stopwatch.RestartPull();
 
             var loadImages = StepCollection.GetStep<(string, MLContext, IDataView), IDataView>(StepName.LoadingImages);
             var inMemoryDataSet = loadImages.Execute((Folder, mlContext, shuffledDataSet));
+            totalElapsed += Stopwatch.RestartPull();
 
             var splitData = StepCollection.GetStep<(MLContext, IDataView, double), TrainTestData>(StepName.SplittingData);
             var trainTestData = splitData.Execute((mlContext, inMemoryDataSet, TestFraction));
+            totalElapsed += Stopwatch.RestartPull();
 
             Options.ValidationSet = trainTestData.TestSet;
             var define = StepCollection.GetStep<(MLContext, Options), IEstimator<ITransformer>>(StepName.DefiningModel);
             var pipeline = define.Execute((mlContext, Options));
+            totalElapsed += Stopwatch.RestartPull();
 
             var train = StepCollection.GetStep<(IEstimator<ITransformer>, IDataView), ITransformer>(StepName.Trainning);
             var trainedModel = train.Execute((pipeline, trainTestData.TrainSet));
+            totalElapsed += Stopwatch.RestartPull();
 
             if (UseEvaluation)
             {
                 var evaluate = StepCollection.GetStep<(MLContext, IDataView, ITransformer), MulticlassClassificationMetrics>(StepName.EvaluatingModel);
                 var metrics = evaluate.Execute((mlContext, trainTestData.TestSet, trainedModel));
                 MulticlassMetricsUpdated?.Invoke(metrics);
+                totalElapsed += Stopwatch.RestartPull();
             }
 
             var save = StepCollection.GetStep<(MLContext, ITransformer, DataViewSchema, Stream), bool>(StepName.SavingModel);
             var success = save.Execute((mlContext, trainedModel, trainTestData.TrainSet.Schema, stream));
+            totalElapsed += Stopwatch.RestartPull();
 
             if (MeasureTime)
             {
                 Stopwatch.Stop();
                 _progress?.Invoke(new TrainProgress
                 {
-                    Message = "Trainning finished successfully",
-                    Elapsed = Stopwatch.Elapsed
+                    Message = $"Total training took: {totalElapsed}",
+                    Status = StepStatus.Finished
                 });
                 Stopwatch = null;
             }

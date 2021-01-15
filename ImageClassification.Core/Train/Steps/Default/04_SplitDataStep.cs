@@ -1,4 +1,5 @@
 ﻿using ImageClassification.Core.Train.Attributes;
+using ImageClassification.Core.Train.Common;
 using ImageClassification.Core.Train.Interfaces;
 using ImageClassification.Core.Train.Models;
 using Microsoft.ML;
@@ -31,12 +32,12 @@ namespace ImageClassification.Core.Train.Steps.Default
 
             if (mlContext is null)
             {
-                throw new NullReferenceException($"Parameter `{nameof(mlContext)}` was null!");
+                ThrowHelper.NullReference(nameof(mlContext));
             }
 
             if (dataSet is null)
             {
-                throw new NullReferenceException($"Parameter `{nameof(dataSet)}` was null!");
+                ThrowHelper.NullReference(nameof(dataSet));
             }
 
             Log?.Invoke(GenerateStarted($"Data splitting is started"));
@@ -55,7 +56,7 @@ namespace ImageClassification.Core.Train.Steps.Default
             }
             catch (InvalidCastException ex)
             {
-                throw new ArgumentException("Argument has wrong format!", nameof(data), ex);
+                return ThrowHelper.Argument<object>("Argument has wrong format!", nameof(data), ex);
             }
         }
     }

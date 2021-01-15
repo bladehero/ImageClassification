@@ -1,4 +1,5 @@
 ﻿using ImageClassification.Core.Train.Attributes;
+using ImageClassification.Core.Train.Common;
 using ImageClassification.Core.Train.Interfaces;
 using ImageClassification.Core.Train.Models;
 using ImageClassification.Shared;
@@ -32,17 +33,17 @@ namespace ImageClassification.Core.Train.Steps.Default
 
             if (string.IsNullOrWhiteSpace(source))
             {
-                throw new ArgumentException("Path to archive cannot be null", nameof(source));
+                ThrowHelper.Argument("Path to archive cannot be null", nameof(source));
             }
 
             if (mlContext is null)
             {
-                throw new NullReferenceException($"Parameter `{nameof(mlContext)}` was null!");
+                ThrowHelper.NullReference(nameof(mlContext));
             }
 
             if (Directory.Exists(source) == false)
             {
-                throw new DirectoryNotFoundException(source);
+                ThrowHelper.DirectoryNotFound(source);
             }
 
             Log?.Invoke(GenerateStarted($"Preparing data set"));
@@ -66,7 +67,7 @@ namespace ImageClassification.Core.Train.Steps.Default
             }
             catch (InvalidCastException ex)
             {
-                throw new ArgumentException("Argument has wrong format!", nameof(data), ex);
+                return ThrowHelper.Argument<object>("Argument has wrong format!", nameof(data), ex);
             }
         }
     }

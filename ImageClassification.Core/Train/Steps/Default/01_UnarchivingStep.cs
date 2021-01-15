@@ -1,4 +1,5 @@
 ﻿using ImageClassification.Core.Train.Attributes;
+using ImageClassification.Core.Train.Common;
 using ImageClassification.Core.Train.Interfaces;
 using ImageClassification.Core.Train.Models;
 using System;
@@ -34,23 +35,23 @@ namespace ImageClassification.Core.Train.Steps.Default
             #region Validation
             if (string.IsNullOrWhiteSpace(archive))
             {
-                throw new ArgumentException("Path to archive cannot be null", nameof(archive));
+                ThrowHelper.Argument("Path to archive cannot be null", nameof(archive));
             }
 
             if (string.IsNullOrWhiteSpace(source))
             {
-                throw new ArgumentException("Path to archive cannot be null", nameof(source));
+                ThrowHelper.Argument("Path to source cannot be null", nameof(source));
             }
 
 
             if (File.Exists(archive) == false)
             {
-                throw new FileNotFoundException(archive);
+                ThrowHelper.FileNotFound(archive);
             }
 
             if (!File.GetAttributes(archive).HasFlag(FileAttributes.Archive))
             {
-                throw new InvalidDataException($"Archive is not valid: {archive}");
+                ThrowHelper.InvalidData($"Archive is not valid: {archive}");
             }
             #endregion
 
@@ -78,7 +79,7 @@ namespace ImageClassification.Core.Train.Steps.Default
             }
             catch (InvalidCastException ex)
             {
-                throw new ArgumentException("Argument has wrong format!", nameof(data), ex);
+                return ThrowHelper.Argument<object>("Argument has wrong format!", nameof(data), ex);
             }
         }
     }

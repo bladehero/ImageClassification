@@ -1,12 +1,11 @@
 ﻿using ImageClassification.Core.Train.Attributes;
+using ImageClassification.Core.Train.Common;
 using ImageClassification.Core.Train.Interfaces;
 using ImageClassification.Core.Train.Models;
 using Microsoft.ML;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 
 namespace ImageClassification.Core.Train.Steps.Default
 {
@@ -31,32 +30,32 @@ namespace ImageClassification.Core.Train.Steps.Default
 
             if (mlContext is null)
             {
-                throw new NullReferenceException($"Parameter `{nameof(mlContext)}` was null!");
+                ThrowHelper.NullReference(nameof(mlContext));
             }
 
             if (trainedModel is null)
             {
-                throw new NullReferenceException($"Parameter `{nameof(trainedModel)}` was null!");
+                ThrowHelper.NullReference(nameof(trainedModel));
             }
 
             if (trainSchema is null)
             {
-                throw new NullReferenceException($"Parameter `{nameof(trainSchema)}` was null!");
+                ThrowHelper.NullReference(nameof(trainSchema));
             }
 
             if (stream is null)
             {
-                throw new NullReferenceException($"Parameter `{nameof(stream)}` was null!");
+                ThrowHelper.NullReference(nameof(stream));
             }
 
             if (!stream.CanRead)
             {
-                throw new InvalidOperationException("Stream must be readable");
+                ThrowHelper.InvalidOperation("Stream must be readable");
             }
 
             if (!stream.CanSeek)
             {
-                throw new InvalidOperationException("Stream must be seakable");
+                ThrowHelper.InvalidOperation("Stream must be seakable");
             }
 
             Log?.Invoke(GenerateStarted($"Started saving model..."));
@@ -77,7 +76,7 @@ namespace ImageClassification.Core.Train.Steps.Default
             }
             catch (InvalidCastException ex)
             {
-                throw new ArgumentException("Argument has wrong format!", nameof(data), ex);
+                return ThrowHelper.Argument<object>("Argument has wrong format!", nameof(data), ex);
             }
         }
     }

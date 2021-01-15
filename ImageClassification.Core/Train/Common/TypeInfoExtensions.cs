@@ -10,12 +10,12 @@ namespace ImageClassification.Core.Train.Common
         {
             if (attributeType is null)
             {
-                throw new ArgumentNullException(nameof(attributeType));
+                ThrowHelper.ArgumentNull(nameof(attributeType));
             }
 
             if (!attributeType.IsSubclassOf(typeof(Attribute)))
             {
-                throw new ArgumentException($"Custom attribute type should be inherited from {nameof(Attribute)}!");
+                ThrowHelper.Argument($"Custom attribute type should be inherited from {nameof(Attribute)}!");
             }
 
             return typeInfo.CustomAttributes.Any(x => x.AttributeType == attributeType);
@@ -25,17 +25,17 @@ namespace ImageClassification.Core.Train.Common
         {
             if (attributeType is null)
             {
-                throw new ArgumentNullException(nameof(attributeType));
+                ThrowHelper.ArgumentNull(nameof(attributeType));
             }
 
             if (!attributeType.IsSubclassOf(typeof(Attribute)))
             {
-                throw new ArgumentException($"Custom attribute type should be inherited from {nameof(Attribute)}!");
+                ThrowHelper.Argument($"Custom attribute type should be inherited from {nameof(Attribute)}!");
             }
 
             if (predicate is null)
             {
-                throw new ArgumentNullException(nameof(predicate));
+                ThrowHelper.ArgumentNull(nameof(predicate));
             }
 
             return typeInfo.CustomAttributes.Any(x => x.AttributeType == attributeType && predicate(x));
@@ -45,12 +45,12 @@ namespace ImageClassification.Core.Train.Common
         {
             if (interfaceType is null)
             {
-                throw new ArgumentNullException(nameof(interfaceType));
+                ThrowHelper.ArgumentNull(nameof(interfaceType));
             }
 
             if (!interfaceType.IsInterface)
             {
-                throw new ArgumentException($"Custom attribute type should be an interface!");
+                ThrowHelper.Argument($"Custom attribute type should be an interface!");
             }
 
             return typeInfo.ImplementedInterfaces.Any(x => x == interfaceType);
