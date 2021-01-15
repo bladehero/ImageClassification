@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using ImageClassification.Core.Train.DataModels;
+using ImageClassification.Core.Train.Models;
 using ImageClassification.Train.Common;
 using Microsoft.ML;
 using Microsoft.ML.Data;
@@ -14,29 +14,29 @@ namespace ImageClassification.Train
         {
             #region Paths
             var currentDirectory = Directory.GetCurrentDirectory();
-            var projectDirectory = Path.Combine(currentDirectory, "..", "..", "..");
+            var projectDirectory = Path.GetFullPath(Path.Combine(currentDirectory, "..", "..", ".."));
             var source = Path.Combine(projectDirectory, "assets", "inputs", "images", "data-set.zip");
             var destination = Path.Combine(projectDirectory, "assets", "outputs", "classifier.zip");
             #endregion
 
             DownloadDataSet(source);
 
-            var trainer = new Core.Train.TrainWrapper(source)
+            var trainer = new Core.Train.DefaultTrainWrapper(source)
             {
-                MeasureTime = true
+                MeasureTime = true,
             };
 
             trainer.ImageMetricsUpdated += ConsoleImageMetricsUpdated;
             trainer.Log += ConsoleLog;
             trainer.MulticlassMetricsUpdated += ConsoleMulticlassMetricsUpdated;
-            trainer.StepChanged += ConsoleStepChanged;
+            trainer.ProgressChanged += ConsoleProgressChanged;
 
-            bool success;
             Directory.CreateDirectory(Path.GetDirectoryName(destination));
-            using (var stream = new FileStream(destination, FileMode.CreateNew))
+            if (File.Exists(destination))
             {
-                success = trainer.TryTrainAsync(stream).Result;
+                File.Delete(destination);
             }
+            var success = trainer.TrainAsync(destination).Result;
 
             #region Results
             Console.WriteLine();
@@ -116,25 +116,39 @@ namespace ImageClassification.Train
 
             Console.WriteLine(new string('=', 30));
         }
-        private static void ConsoleStepChanged(TrainProgress progress)
+        private static void ConsoleProgressChanged(TrainProgress progress)
         {
-            Console.WriteLine(new string('-', 30));
             Console.WriteLine();
+            Console.WriteLine(new string('-', 30));
 
-            if (progress.Current is Core.Train.TrainStepStatus status)
+            if (progress.Current is StepName stepName)
             {
-                Console.WriteLine("Current step is {0}", status);
+                Console.WriteLine("[{0}]", DateTime.Now);
+                Console.WriteLine("Current step: {0}", stepName);
+                Console.Write("Status: ");
+                switch (progress.Status)
+                {
+                    case StepStatus.Started:
+                        ConsoleHelper.ColorWriteLine(ConsoleColor.DarkYellow, progress.Status);
+                        break;
+                    case StepStatus.Finished:
+                        ConsoleHelper.ColorWriteLine(ConsoleColor.DarkGreen, progress.Status);
+                        break;
+                    default:
+                        ConsoleHelper.ColorWriteLine(ConsoleColor.Red, "Unknown");
+                        break;
+                }
             }
 
             Console.WriteLine("Message: {0}", progress.Message);
 
             if (progress.Elapsed is TimeSpan elapsed)
             {
-                Console.WriteLine("Step took {0}", elapsed);
+                Console.WriteLine("Step took: {0}", elapsed);
             }
 
-            Console.WriteLine();
             Console.WriteLine(new string('-', 30));
+            Console.WriteLine();
         }
         #endregion
 
