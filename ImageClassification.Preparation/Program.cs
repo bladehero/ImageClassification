@@ -1,4 +1,6 @@
-﻿using ImageClassification.Preparation.Extensions;
+﻿using ImageClassification.Core.Preparation;
+using ImageClassification.Core.Preparation.Models;
+using ImageClassification.Preparation.Extensions;
 using ImageClassification.Preparation.Models;
 using ImageClassification.Preparation.Models.Unsplash;
 using System;
@@ -9,6 +11,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Category = ImageClassification.Core.Preparation.Models.Category;
 
 namespace ImageClassification.Preparation
 {
@@ -28,11 +31,11 @@ namespace ImageClassification.Preparation
 
         static readonly List<Category> categories = new List<Category>
         {
-            new Category{ Name = "portraits", Keywords = new List<string>{ "human", "face", "man", "woman" } },
-            new Category{ Name = "scenery", Keywords = new List<string>{ "scenery", "landscape", "sky", "city", "street", "architecture" } },
-            new Category{ Name = "food", Keywords = new List<string>{ "food", "fruits", "vegetables", "meal" } },
-            new Category{ Name = "cars", Keywords = new List<string>{ "cars" } },
-            new Category{ Name = "interior", Keywords = new List<string>{ "interior" } },
+            //new Category{ Name = "portraits", Keywords = new List<string>{ "human", "face", "man", "woman" } },
+            //new Category{ Name = "scenery", Keywords = new List<string>{ "scenery", "landscape", "sky", "city", "street", "architecture" } },
+            //new Category{ Name = "food", Keywords = new List<string>{ "food", "fruits", "vegetables", "meal" } },
+            //new Category{ Name = "cars", Keywords = new List<string>{ "cars" } },
+            //new Category{ Name = "interior", Keywords = new List<string>{ "interior" } },
             new Category{ Name = "flowers", Keywords = new List<string>{ "flowers" } },
             new Category{ Name = "dogs", Keywords = new List<string>{ "dogs" } },
             new Category{ Name = "cats", Keywords = new List<string>{ "cats" } },
@@ -48,73 +51,98 @@ namespace ImageClassification.Preparation
         /// </summary>
         static readonly int imagesPerKeyword = 100;
 
+
+        static string path = "D:\\Test\\{0}-{1}-image-{2}.jpg";
         static async Task Main(string[] args)
         {
-            var totalImageCount = imagesPerKeyword * categories.SelectMany(x => x.Keywords).Count();
-            var currentImageCount = 0.0;
-            var progress = new Progress<int>(e =>
-            {
-                currentImageCount += e;
-                Console.WriteLine("{0}% - {1}/{2}", Math.Round(currentImageCount / totalImageCount * 100, 2), currentImageCount, totalImageCount);
-            });
+            var context = new ParsingContext();
+            var images = context.ParseImages(new ParseRequest { Categories = categories, EstimatedCount = 100 });
 
             var stopwatch = Stopwatch.StartNew();
 
+            var index = 0;
+            await foreach (var image in images)
             {
-                var archive = PrepareArchive();
-
-                var pageTasks = new List<(string Category, string Keyword, Task<Response> Task)>();
-                foreach (var category in categories)
-                {
-                    foreach (var keyword in category.Keywords)
-                    {
-                        var uri = new Uri(url).AddParameter("query", keyword);
-                        var total = (int)Math.Ceiling((double)imagesPerKeyword / pageSize);
-                        var pages = Enumerable.Range(startFrom, total);
-
-                        foreach (var page in pages)
-                        {
-                            var pageUri = uri.AddParameter("per_page", pageSize)
-                                             .AddParameter("page", page);
-
-                            var take = imagesPerKeyword - (page - 1) * pageSize;
-                            var pageTask = Task.Run(async () =>
-                            {
-                                var response = await httpClient.GetAsync<Response>(pageUri);
-                                response.Results = response.Results.Take(take);
-                                return response;
-                            });
-                            pageTasks.Add((category.Name, keyword, pageTask));
-                        }
-                    }
-                }
-
-                await Task.WhenAll(pageTasks.Select(x => x.Task));
-
-                var downloads = new List<(string Category, string Keyword, Result Result)>();
-                foreach (var pageTask in pageTasks)
-                {
-                    foreach (var result in pageTask.Task.Result.Results)
-                    {
-                        if (downloads.All(x => x.Result.Id != result.Id))
-                        {
-                            downloads.Add((pageTask.Category, pageTask.Keyword, result));
-                        }
-                    }
-                }
-
-                foreach (var chunk in downloads.ChunkBy(chunkSize))
-                {
-                    await Task.WhenAll(chunk.Select(download
-                        => Task.Run(async () => await DownloadToArchive(download.Category, download.Keyword, download.Result, archive, progress))));
-                }
-
-                archive.Dispose();
+                var pathToImage = string.Format(path, image.Category, image.Keyword, index);
+                Console.WriteLine("[{0}:{1}] - {2}", image.Category, image.Keyword, image.Image.Size);
+                image.Image.Save(pathToImage);
+                index++;
             }
 
             stopwatch.Stop();
-            Console.WriteLine("Total time: {0}", stopwatch.Elapsed);
+
+            Console.WriteLine(stopwatch.Elapsed);
         }
+
+        #region Commented
+        //static async Task Main(string[] args)
+        //{
+        //    var totalImageCount = imagesPerKeyword * categories.SelectMany(x => x.Keywords).Count();
+        //    var currentImageCount = 0.0;
+        //    var progress = new Progress<int>(e =>
+        //    {
+        //        currentImageCount += e;
+        //        Console.WriteLine("{0}% - {1}/{2}", Math.Round(currentImageCount / totalImageCount * 100, 2), currentImageCount, totalImageCount);
+        //    });
+
+        //    var stopwatch = Stopwatch.StartNew();
+
+        //    {
+        //        var archive = PrepareArchive();
+
+        //        var pageTasks = new List<(string Category, string Keyword, Task<Response> Task)>();
+        //        foreach (var category in categories)
+        //        {
+        //            foreach (var keyword in category.Keywords)
+        //            {
+        //                var uri = new Uri(url).AddParameter("query", keyword);
+        //                var total = (int)Math.Ceiling((double)imagesPerKeyword / pageSize);
+        //                var pages = Enumerable.Range(startFrom, total);
+
+        //                foreach (var page in pages)
+        //                {
+        //                    var pageUri = uri.AddParameter("per_page", pageSize)
+        //                                     .AddParameter("page", page);
+
+        //                    var take = imagesPerKeyword - (page - 1) * pageSize;
+        //                    var pageTask = Task.Run(async () =>
+        //                    {
+        //                        var response = await httpClient.GetAsync<Response>(pageUri);
+        //                        response.Results = response.Results.Take(take);
+        //                        return response;
+        //                    });
+        //                    pageTasks.Add((category.Name, keyword, pageTask));
+        //                }
+        //            }
+        //        }
+
+        //        await Task.WhenAll(pageTasks.Select(x => x.Task));
+
+        //        var downloads = new List<(string Category, string Keyword, Result Result)>();
+        //        foreach (var pageTask in pageTasks)
+        //        {
+        //            foreach (var result in pageTask.Task.Result.Results)
+        //            {
+        //                if (downloads.All(x => x.Result.Id != result.Id))
+        //                {
+        //                    downloads.Add((pageTask.Category, pageTask.Keyword, result));
+        //                }
+        //            }
+        //        }
+
+        //        foreach (var chunk in downloads.ChunkBy(chunkSize))
+        //        {
+        //            await Task.WhenAll(chunk.Select(download
+        //                => Task.Run(async () => await DownloadToArchive(download.Category, download.Keyword, download.Result, archive, progress))));
+        //        }
+
+        //        archive.Dispose();
+        //    }
+
+        //    stopwatch.Stop();
+        //    Console.WriteLine("Total time: {0}", stopwatch.Elapsed);
+        //}
+        #endregion
 
         static ZipArchive PrepareArchive()
         {

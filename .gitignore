@@ -225,3 +225,9 @@ __pycache__/
 
 # Windows thumbnail cache files
 Thumbs.db
+
+########################################
+###    Internal git ignored files    ###
+########################################
+ImageClassification.Train/assets/
+ImageClassification.Preparation/assets/
