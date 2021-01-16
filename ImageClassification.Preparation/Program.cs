@@ -56,10 +56,12 @@ namespace ImageClassification.Preparation
             #region Indexing
             var files = Directory.GetFiles(imagesDirectory);
             var currentIndex = files.Any()
-                ? (int)files.Max(path => GetIndexFromPath(path, pattern, defaultArchiveName, indexBracers))
-                : -1;
-            var nextIndex = currentIndex + 1;
-            var archive = $"{pattern[0]} {indexBracers.Left}{nextIndex}{indexBracers.Right}.{pattern[^1]}";
+                ? (int?)files.Max(path => GetIndexFromPath(path, pattern, defaultArchiveName, indexBracers))
+                : null;
+            var nextIndex = currentIndex.HasValue ? (int?)currentIndex.Value + 1 : null;
+            var index = nextIndex.HasValue ? $" {indexBracers.Left}{nextIndex}{indexBracers.Right}" : string.Empty;
+            var archiveName = $"{pattern[0]}{index}.{pattern[^1]}";
+            var archive = Path.Combine(imagesDirectory, archiveName);
             #endregion
 
             #endregion
@@ -72,18 +74,18 @@ namespace ImageClassification.Preparation
             using (var fs = new FileStream(archive, FileMode.CreateNew))
             {
                 using var zip = new ZipArchive(fs, ZipArchiveMode.Update);
-                var indexes = categories.ToDictionary(x => x.Name, x => default(int));
+                var indexes = categories.SelectMany(x => x.Keywords).ToDictionary(x => x, x => default(int));
 
                 await foreach (var parsedImage in parsedImages)
                 {
-                    if (!indexes.ContainsKey(parsedImage.Category))
+                    if (!indexes.ContainsKey(parsedImage.Keyword))
                     {
                         throw new ArgumentException("There is no such category in search-list");
                     }
 
                     var image = parsedImage.Image;
                     var format = new ImageFormatConverter().ConvertToString(image.RawFormat);
-                    var entryName = $"{parsedImage.Keyword}-{indexes[parsedImage.Category]}.{format}";
+                    var entryName = $"{parsedImage.Keyword}-{indexes[parsedImage.Keyword]}.{format}";
                     var entryPath = Path.Combine(parsedImage.Category, entryName);
                     var entry = zip.CreateEntry(entryPath, CompressionLevel.Optimal);
 
@@ -92,7 +94,7 @@ namespace ImageClassification.Preparation
 
                     Console.WriteLine("Image `{0}` was saved in memory as archive `{1}`", entryPath, archive);
 
-                    indexes[parsedImage.Category] += 1;
+                    indexes[parsedImage.Keyword] += 1;
                 }
             }
 

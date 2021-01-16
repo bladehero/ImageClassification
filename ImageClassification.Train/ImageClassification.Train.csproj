@@ -18,4 +18,10 @@
     <ProjectReference Include="..\ImageClassification.Shared\ImageClassification.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="assets\inputs\images\" />
+    <Folder Include="assets\inputs\" />
+    <Folder Include="assets\outputs\" />
+  </ItemGroup>
+
 </Project>
