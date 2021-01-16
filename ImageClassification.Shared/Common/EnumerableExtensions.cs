@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ImageClassification.Core.Preparation.Common
+namespace ImageClassification.Shared.Common
 {
-    public static class EnumerableExtensions
+    internal static class EnumerableExtensions
     {
         /// <summary>
         /// Helper method for chunking list into list of smaller lists.

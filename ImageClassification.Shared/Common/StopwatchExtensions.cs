@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace ImageClassification.Core.Train.Common
+namespace ImageClassification.Shared.Common
 {
     public static class StopwatchExtensions
     {

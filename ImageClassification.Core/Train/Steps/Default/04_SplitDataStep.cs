@@ -1,7 +1,7 @@
 ﻿using ImageClassification.Core.Train.Attributes;
-using ImageClassification.Core.Train.Common;
 using ImageClassification.Core.Train.Interfaces;
 using ImageClassification.Core.Train.Models;
+using ImageClassification.Shared.Common;
 using Microsoft.ML;
 using System;
 using System.Diagnostics;

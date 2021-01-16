@@ -1,5 +1,4 @@
-﻿using ImageClassification.Core.Train.Common;
-using ImageClassification.Core.Train.Models;
+﻿using ImageClassification.Core.Train.Models;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using System;
@@ -9,6 +8,7 @@ using System.Threading.Tasks;
 using static Microsoft.ML.Vision.ImageClassificationTrainer;
 using System.Reflection;
 using static Microsoft.ML.DataOperationsCatalog;
+using ImageClassification.Shared.Common;
 
 namespace ImageClassification.Core.Train
 {

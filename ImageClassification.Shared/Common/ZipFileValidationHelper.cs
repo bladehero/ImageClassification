@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.IO.Compression;
 
-namespace ImageClassification.Core.Train.Common
+namespace ImageClassification.Shared.Common
 {
     public static class ZipFileValidationHelper
     {

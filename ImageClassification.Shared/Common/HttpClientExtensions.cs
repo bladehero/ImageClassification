@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace ImageClassification.Core.Preparation.Common
+namespace ImageClassification.Shared.Common
 {
     public static class HttpClientExtensions
     {

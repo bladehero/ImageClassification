@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web;
 
-namespace ImageClassification.Core.Preparation.Common
+namespace ImageClassification.Shared.Common
 {
     public static class UriExtensions
     {

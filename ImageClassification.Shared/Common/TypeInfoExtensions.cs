@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace ImageClassification.Core.Train.Common
+namespace ImageClassification.Shared.Common
 {
     public static class TypeInfoExtensions
     {

@@ -1,5 +1,6 @@
 ﻿using ImageClassification.Core.Preparation.Models;
 using ImageClassification.Core.Preparation.Strategies.Unsplash;
+using ImageClassification.Shared.Common;
 using System;
 using System.Collections.Generic;
 
@@ -7,6 +8,8 @@ namespace ImageClassification.Core.Preparation
 {
     public class ParsingContext
     {
+        private IImageParsingStrategy imageParsingStrategy;
+
         /// <summary>
         /// 
         /// </summary>
@@ -15,7 +18,18 @@ namespace ImageClassification.Core.Preparation
         /// <summary>
         /// 
         /// </summary>
-        public IImageParsingStrategy ImageParsingStrategy { private get; set; }
+        public IImageParsingStrategy ImageParsingStrategy
+        {
+            set
+            {
+                if (value is null)
+                {
+                    ThrowHelper.NullReference(nameof(ImageParsingStrategy));
+                }
+
+                imageParsingStrategy = value;
+            }
+        }
 
         /// <summary>
         /// 
@@ -40,9 +54,20 @@ namespace ImageClassification.Core.Preparation
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public IAsyncEnumerable<ParsedImage> ParseImages(ParseRequest request)
+        public IEnumerable<ParsedImage> ParseImages(ParseRequest request)
         {
-            var result = ImageParsingStrategy.ParseAsync(request, Progress);
+            var result = imageParsingStrategy.Parse(request, Progress);
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public IAsyncEnumerable<ParsedImage> ParseImagesAsync(ParseRequest request)
+        {
+            var result = imageParsingStrategy.ParseAsync(request, Progress);
             return result;
         }
     }

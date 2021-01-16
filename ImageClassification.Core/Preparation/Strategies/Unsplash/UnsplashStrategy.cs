@@ -1,27 +1,23 @@
-﻿using ImageClassification.Core.Preparation.Common;
-using ImageClassification.Core.Preparation.Models;
+﻿using ImageClassification.Core.Preparation.Models;
 using ImageClassification.Core.Preparation.Strategies.Unsplash.Internal;
+using ImageClassification.Shared.Common;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageClassification.Core.Preparation.Strategies.Unsplash
 {
-    public class UnsplashStrategy : IImageParsingStrategy
+    internal class UnsplashStrategy : IImageParsingStrategy
     {
         private const string url = @"https://unsplash.com/napi/search/photos";
 
         private readonly HttpClient httpClient = new HttpClient();
 
         private const int pageSize = 30;
-        private const int chunkSize = 25;
         private const int startFrom = 1;
-
-        private const float booster = 0.1f;
 
         public IEnumerable<ParsedImage> Parse(ParseRequest request, IProgress<float> progress = null)
         {
@@ -31,11 +27,12 @@ namespace ImageClassification.Core.Preparation.Strategies.Unsplash
 
         public async IAsyncEnumerable<ParsedImage> ParseAsync(ParseRequest request, IProgress<float> progress = null)
         {
-            var capacity = request.EstimatedCount + (int)Math.Ceiling(request.EstimatedCount * booster);
+            var imagesPerCategory = (double)request.EstimatedCount / request.Categories.Count();
+            var capacity = (int)Math.Ceiling(imagesPerCategory / pageSize) * request.Categories.Sum(x => x.Keywords.Count());
             var tasks = new List<Task<IAsyncEnumerable<ParsedImage>>>(capacity);
             foreach (var category in request.Categories)
             {
-                var imagesPerKeyword = (int)Math.Ceiling((double)request.EstimatedCount / category.Keywords.Count());
+                var imagesPerKeyword = (int)Math.Ceiling(imagesPerCategory / category.Keywords.Count());
 
                 foreach (var keyword in category.Keywords)
                 {
