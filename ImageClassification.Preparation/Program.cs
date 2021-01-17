@@ -35,6 +35,8 @@ namespace ImageClassification.Preparation
                 Categories = categories,
                 EstimatedCount = 100
             };
+
+            const int maxWidth = 1920; 
             #endregion
 
             #region Paths
@@ -84,8 +86,12 @@ namespace ImageClassification.Preparation
                     }
 
                     var image = parsedImage.Image;
-                    var format = new ImageFormatConverter().ConvertToString(image.RawFormat).ToLower();
+                    if (maxWidth < image.Width)
+                    {
+                        image = image.ProportionalResizeImageWidth(maxWidth);
+                    }
 
+                    var format = new ImageFormatConverter().ConvertToString(image.RawFormat).ToLower();
                     var entryName = $"{parsedImage.Keyword}{(index == default ? string.Empty : $"-{index}")}.{format}";
                     var entryPath = Path.Combine(parsedImage.Category, entryName);
                     var entry = zip.CreateEntry(entryPath, CompressionLevel.Optimal);
