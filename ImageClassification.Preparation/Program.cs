@@ -58,7 +58,7 @@ namespace ImageClassification.Preparation
             #region Indexing
             var files = Directory.GetFiles(imagesDirectory);
             var currentIndex = files.Any()
-                ? (int?)files.Max(path => GetIndexFromPath(path, pattern, defaultArchiveName, indexBracers))
+                ? (int?)files.Max(path => GetIndexFromPath(path, pattern, indexBracers))
                 : null;
             var nextIndex = currentIndex.HasValue ? (int?)currentIndex.Value + 1 : null;
             var indexString = nextIndex.HasValue ? $" {indexBracers.Left}{nextIndex}{indexBracers.Right}" : string.Empty;
@@ -86,18 +86,19 @@ namespace ImageClassification.Preparation
                     }
 
                     var image = parsedImage.Image;
+                    var rawFormat = image.RawFormat;
                     if (maxWidth < image.Width)
                     {
                         image = image.ProportionalResizeImageWidth(maxWidth);
                     }
 
-                    var format = new ImageFormatConverter().ConvertToString(image.RawFormat).ToLower();
+                    var format = new ImageFormatConverter().ConvertToString(rawFormat).ToLower();
                     var entryName = $"{parsedImage.Keyword}{(index == default ? string.Empty : $"-{index}")}.{format}";
                     var entryPath = Path.Combine(parsedImage.Category, entryName);
                     var entry = zip.CreateEntry(entryPath, CompressionLevel.Optimal);
 
                     using var stream = entry.Open();
-                    image.Save(stream, image.RawFormat);
+                    image.Save(stream, rawFormat);
 
                     Console.WriteLine("Image {0}, Category: `{1}`, Keyword: `{2}` was parsed",
                                       index,
@@ -119,18 +120,17 @@ namespace ImageClassification.Preparation
         #region Helper
         private static decimal GetIndexFromPath(string path,
                                                 string[] archivePattern,
-                                                string defaultArchiveName,
                                                 (char Left, char Right) indexBracers)
         {
             var file = Path.GetFileName(path);
-            var extension = Path.GetExtension(file);
+            var extension = Path.GetExtension(file).TrimStart('.');
             if (file.StartsWith(archivePattern[0])
                 && extension.Equals(archivePattern[^1], StringComparison.OrdinalIgnoreCase))
             {
                 var name = file.Split('.')[0];
-                if (name.Length > defaultArchiveName.Length)
+                if (name.Length > archivePattern[0].Length)
                 {
-                    var indexPart = name.Substring(defaultArchiveName.Length).Trim();
+                    var indexPart = name.Substring(archivePattern[0].Length).Trim();
                     if (indexPart.StartsWith(indexBracers.Left) && indexPart.EndsWith(indexBracers.Right))
                     {
                         var indexString = indexPart.TrimStart(indexBracers.Left).TrimEnd(indexBracers.Right);
