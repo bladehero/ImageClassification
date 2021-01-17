@@ -38,7 +38,7 @@ namespace ImageClassification.Shared
         {
             var imagesPath = Directory
                 .GetFiles(folder, "*", searchOption: SearchOption.AllDirectories)
-                .Where(x => Path.GetExtension(x) == ".jpg" || Path.GetExtension(x) == ".png");
+                .Where(x => Path.GetExtension(x) == ".jpg" || Path.GetExtension(x) == ".jpeg" || Path.GetExtension(x) == ".png");
 
             foreach (var path in imagesPath)
             {
