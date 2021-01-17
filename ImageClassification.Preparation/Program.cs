@@ -13,10 +13,12 @@ using Category = ImageClassification.Core.Preparation.Models.Category;
 
 namespace ImageClassification.Preparation
 {
-    class Program
+    public class Program
     {
-        static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
+            Console.WriteLine("Scenario `{0}` has been started", typeof(Program).Assembly.GetName().Name);
+
             #region Initialization
             var categories = new List<Category>
             {
@@ -50,7 +52,7 @@ namespace ImageClassification.Preparation
             #region Directories
             var currentDirectory = Directory.GetCurrentDirectory();
             var projectDirectory = Path.GetFullPath(Path.Combine(currentDirectory, "..", "..", ".."));
-            var imagesDirectory = Path.Combine(projectDirectory, "assets", "images");
+            var imagesDirectory = Path.Combine(projectDirectory, "assets", "inputs", "images");
             #endregion
 
             Directory.CreateDirectory(imagesDirectory);
@@ -112,9 +114,10 @@ namespace ImageClassification.Preparation
             stopwatch.Stop();
 
             Console.WriteLine();
+            Console.WriteLine("Scenario `{0}` has been finished", typeof(Program).Assembly.GetName().Name);
             Console.WriteLine("Total process took:");
             Console.WriteLine(stopwatch.Elapsed);
-            Console.WriteLine("Press anykey to exit...");
+            Console.WriteLine();
         }
 
         #region Helper

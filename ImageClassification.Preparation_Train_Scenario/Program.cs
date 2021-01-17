@@ -1,12 +1,13 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 
 namespace ImageClassification.Preparation_Train_Scenario
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            await Preparation.Program.Main(args);
+            await Train.Program.Main(args);
         }
     }
 }

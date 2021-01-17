@@ -5,4 +5,14 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ImageClassification.Preparation\ImageClassification.Preparation.csproj" />
+    <ProjectReference Include="..\ImageClassification.Train\ImageClassification.Train.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="assets\inputs\images\" />
+    <Folder Include="assets\outputs\" />
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using ImageClassification.Core.Train.Models;
 using ImageClassification.Train.Common;
 using Microsoft.ML;
@@ -8,10 +9,12 @@ using static Microsoft.ML.Vision.ImageClassificationTrainer;
 
 namespace ImageClassification.Train
 {
-    internal class Program
+    public class Program
     {
-        static void Main()
+        public static async Task Main(string[] args)
         {
+            Console.WriteLine("Scenario `{0}` has been started", typeof(Program).Assembly.GetName().Name);
+
             #region Paths
             var currentDirectory = Directory.GetCurrentDirectory();
             var projectDirectory = Path.GetFullPath(Path.Combine(currentDirectory, "..", "..", ".."));
@@ -36,15 +39,14 @@ namespace ImageClassification.Train
             {
                 File.Delete(destination);
             }
-            var success = trainer.TrainAsync(destination).Result;
+            var success = await trainer.TrainAsync(destination);
 
             #region Results
             Console.WriteLine();
-            Console.WriteLine("Trainning process has been finished {0}",
-                (success ? "successfully" : "with failure, check the logs."));
+            Console.WriteLine("Scenario `{0}` has been finished {1}",
+                              typeof(Program).Assembly.GetName().Name,
+                              (success ? "successfully" : "with failure, check the logs."));
             Console.WriteLine();
-            Console.WriteLine("Enter anykey to exit...");
-            Console.ReadKey();
             #endregion
         }
 
