@@ -59,8 +59,8 @@ namespace ImageClassification.Preparation
                 ? (int?)files.Max(path => GetIndexFromPath(path, pattern, defaultArchiveName, indexBracers))
                 : null;
             var nextIndex = currentIndex.HasValue ? (int?)currentIndex.Value + 1 : null;
-            var index = nextIndex.HasValue ? $" {indexBracers.Left}{nextIndex}{indexBracers.Right}" : string.Empty;
-            var archiveName = $"{pattern[0]}{index}.{pattern[^1]}";
+            var indexString = nextIndex.HasValue ? $" {indexBracers.Left}{nextIndex}{indexBracers.Right}" : string.Empty;
+            var archiveName = $"{pattern[0]}{indexString}.{pattern[^1]}";
             var archive = Path.Combine(imagesDirectory, archiveName);
             #endregion
 
@@ -78,21 +78,25 @@ namespace ImageClassification.Preparation
 
                 await foreach (var parsedImage in parsedImages)
                 {
-                    if (!indexes.ContainsKey(parsedImage.Keyword))
+                    if (!indexes.TryGetValue(parsedImage.Keyword, out int index))
                     {
                         throw new ArgumentException("There is no such category in search-list");
                     }
 
                     var image = parsedImage.Image;
-                    var format = new ImageFormatConverter().ConvertToString(image.RawFormat);
-                    var entryName = $"{parsedImage.Keyword}-{indexes[parsedImage.Keyword]}.{format}";
+                    var format = new ImageFormatConverter().ConvertToString(image.RawFormat).ToLower();
+
+                    var entryName = $"{parsedImage.Keyword}{(index == default ? string.Empty : $"-{index}")}.{format}";
                     var entryPath = Path.Combine(parsedImage.Category, entryName);
                     var entry = zip.CreateEntry(entryPath, CompressionLevel.Optimal);
 
                     using var stream = entry.Open();
                     image.Save(stream, image.RawFormat);
 
-                    Console.WriteLine("Image `{0}` was saved in memory as archive `{1}`", entryPath, archive);
+                    Console.WriteLine("Image {0}, Category: `{1}`, Keyword: `{2}` was parsed",
+                                      index,
+                                      parsedImage.Category,
+                                      parsedImage.Keyword);
 
                     indexes[parsedImage.Keyword] += 1;
                 }
@@ -100,9 +104,10 @@ namespace ImageClassification.Preparation
 
             stopwatch.Stop();
 
+            Console.WriteLine();
+            Console.WriteLine("Total process took:");
             Console.WriteLine(stopwatch.Elapsed);
-
-            Console.ReadKey();
+            Console.WriteLine("Press anykey to exit...");
         }
 
         #region Helper
