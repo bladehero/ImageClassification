@@ -1,5 +1,6 @@
 ﻿using ImageClassification.Core.Preparation;
 using ImageClassification.Core.Preparation.Models;
+using ImageClassification.Shared.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +15,6 @@ namespace ImageClassification.Preparation
 {
     class Program
     {
-
         static async Task Main(string[] args)
         {
             #region Initialization
