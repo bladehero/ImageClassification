@@ -54,7 +54,7 @@ namespace ImageClassification.Core.Preparation.Strategies.Unsplash
                 ThrowHelper.Argument($"'{nameof(request)}' cannot be null or whitespace", nameof(request));
             }
 
-            var collection = ParseAsync(request, progress).ToListAsync().Result;
+            var collection = AsyncHelpers.RunSync(() => ParseAsync(request, progress).ToListAsync());
             return collection;
         }
 

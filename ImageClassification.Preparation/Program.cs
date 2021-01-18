@@ -20,7 +20,9 @@ namespace ImageClassification.Preparation
         const int estimatedCountOfImages = 120;
         const int maxWidthOfImage = 1920;
 
+#pragma warning disable IDE0060 // Remove unused parameter
         public static async Task Main(string[] args)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             Console.WriteLine("Scenario `{0}` has been started", typeof(Program).Assembly.GetName().Name);
 
@@ -221,7 +223,7 @@ namespace ImageClassification.Preparation
                 var name = file.Split('.')[0];
                 if (name.Length > archivePattern[0].Length)
                 {
-                    var indexPart = name.Substring(archivePattern[0].Length).Trim();
+                    var indexPart = name[archivePattern[0].Length..].Trim();
                     if (indexPart.StartsWith(indexBracers.Left) && indexPart.EndsWith(indexBracers.Right))
                     {
                         var indexString = indexPart.TrimStart(indexBracers.Left).TrimEnd(indexBracers.Right);

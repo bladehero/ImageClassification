@@ -12,7 +12,9 @@ namespace ImageClassification.Train
 {
     public class Program
     {
+#pragma warning disable IDE0060 // Remove unused parameter
         public static async Task Main(string[] args)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             Console.WriteLine("Scenario `{0}` has been started", typeof(Program).Assembly.GetName().Name);
 
