@@ -17,7 +17,7 @@ namespace ImageClassification.Preparation
     public class Program
     {
         const bool useLog = false;
-        const int estimatedCountOfImages = 120;
+        const int estimatedCountOfImages = 40;
         const int maxWidthOfImage = 1920;
 
 #pragma warning disable IDE0060 // Remove unused parameter

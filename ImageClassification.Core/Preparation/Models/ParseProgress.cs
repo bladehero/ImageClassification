@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ImageClassification.Core.Preparation.Models
+﻿namespace ImageClassification.Core.Preparation.Models
 {
     public class ParseProgress
     {

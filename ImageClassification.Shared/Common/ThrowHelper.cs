@@ -18,9 +18,13 @@ namespace ImageClassification.Shared.Common
         {
             throw new ArgumentNullException(parameter, innerException);
         }
-        public static void ArgumentOutOfRange(string parameter, object value, string message, Exception innerException = null)
+        public static void ArgumentOutOfRange(string parameter, Exception innerException = null)
         {
-            throw new ArgumentNullException(parameter, innerException);
+            throw new ArgumentOutOfRangeException(parameter, innerException);
+        }
+        public static void ArgumentOutOfRange(string parameter, object actual, string message)
+        {
+            throw new ArgumentOutOfRangeException(parameter, actual, message);
         }
         public static void SystemEntryNotFound(string path, Exception innerException = null)
         {
@@ -63,9 +67,13 @@ namespace ImageClassification.Shared.Common
         {
             throw new ArgumentNullException(parameter, innerException);
         }
-        public static T ArgumentOutOfRange<T>(string parameter, object value, string message, Exception innerException = null)
+        public static T ArgumentOutOfRange<T>(string parameter, Exception innerException = null)
         {
-            throw new ArgumentNullException(parameter, innerException);
+            throw new ArgumentOutOfRangeException(parameter, innerException);
+        }
+        public static T ArgumentOutOfRange<T>(string parameter, object actual, string message)
+        {
+            throw new ArgumentOutOfRangeException(parameter, actual, message);
         }
         public static T SystemEntryNotFound<T>(string path, Exception innerException = null)
         {

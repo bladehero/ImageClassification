@@ -1,9 +1,9 @@
-﻿using ImageClassification.Core.Preparation.Models;
+﻿using ImageClassification.Core.Preparation.Interfaces;
+using ImageClassification.Core.Preparation.Models;
 using ImageClassification.Core.Preparation.Strategies.Unsplash.Internal;
 using ImageClassification.Shared.Common;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.Http;
@@ -23,7 +23,7 @@ namespace ImageClassification.Core.Preparation.Strategies.Unsplash
 
         public int MaxThreads { get; set; } = 16;
 
-        public async Task<Image> Parse(string keyword, int index)
+        async Task<Image> IImageParsingStrategy.Parse(string keyword, int index)
         {
             if (string.IsNullOrWhiteSpace(keyword))
             {
@@ -41,24 +41,24 @@ namespace ImageClassification.Core.Preparation.Strategies.Unsplash
 
             var response = await httpClient.GetAsync<Response>(uri);
             var result = response.Result.Results.First();
-            var download = await httpClient.GetAsync(result.Links.Download);
-            var stream = await download.Content.ReadAsStreamAsync();
+            using var download = await httpClient.GetAsync(result.Links.Download);
+            using var stream = await download.Content.ReadAsStreamAsync();
             var image = Image.FromStream(stream);
             return image;
         }
 
-        public IEnumerable<ParsedImage> Parse(ParseRequest request, IProgress<ParseProgress> progress = null)
+        IEnumerable<ParsedImage> IImageParsingStrategy.Parse(ParseRequest request, IProgress<ParseProgress> progress)
         {
             if (request is null)
             {
                 ThrowHelper.Argument($"'{nameof(request)}' cannot be null or whitespace", nameof(request));
             }
 
-            var collection = AsyncHelpers.RunSync(() => ParseAsync(request, progress).ToListAsync());
+            var collection = AsyncHelpers.RunSync(() => ((IImageParsingStrategy)this).ParseAsync(request, progress).ToListAsync());
             return collection;
         }
 
-        public async IAsyncEnumerable<ParsedImage> ParseAsync(ParseRequest request, IProgress<ParseProgress> progress = null)
+        async IAsyncEnumerable<ParsedImage> IImageParsingStrategy.ParseAsync(ParseRequest request, IProgress<ParseProgress> progress)
         {
             if (request is null)
             {

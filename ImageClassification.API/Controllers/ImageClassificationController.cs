@@ -17,11 +17,17 @@ namespace ImageClassification.API.Controllers
     public class ImageClassificationController : ControllerBase
     {
         private readonly PredictionEnginePool<InMemoryImageData, ImagePrediction> _predictionEnginePool;
+#pragma warning disable IDE0052 // Remove unread private members
+        private readonly IConfiguration _configuration;
+#pragma warning restore IDE0052 // Remove unread private members
         private readonly ILogger<ImageClassificationController> _logger;
 
-        public ImageClassificationController(PredictionEnginePool<InMemoryImageData, ImagePrediction> predictionEnginePool, IConfiguration configuration, ILogger<ImageClassificationController> logger) //When using DI/IoC
+        public ImageClassificationController(PredictionEnginePool<InMemoryImageData, ImagePrediction> predictionEnginePool,
+                                             IConfiguration configuration,
+                                             ILogger<ImageClassificationController> logger)
         {
             _predictionEnginePool = predictionEnginePool;
+            _configuration = configuration;
             _logger = logger;
         }
 

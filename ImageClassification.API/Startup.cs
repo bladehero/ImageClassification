@@ -1,3 +1,4 @@
+using ImageClassification.API.Configurations;
 using ImageClassification.API.Extensions;
 using ImageClassification.Shared.DataModels;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ML;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace ImageClassification.API
 {
@@ -30,17 +33,24 @@ namespace ImageClassification.API
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddControllers();
-            services.AddControllers();
+            services.Configure<MLModelOptions>(Configuration.GetSection(MLModelOptions.MLModel));
+            
+            services.AddCustomServices();
+
+            services.AddControllers()
+                    .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                    });
             services.AddRazorPages();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ImageClassification.API", Version = "v1" });
             });
+            services.AddSwaggerGenNewtonsoftSupport();
 
-            /////////////////////////////////////////////////////////////////////////////
             // Register the PredictionEnginePool as a service in the IoC container for DI.
-            //
             services.AddPredictionEnginePool<InMemoryImageData, ImagePrediction>()
                     .FromFile(Configuration["MLModel:MLModelFilePath"]);
 
