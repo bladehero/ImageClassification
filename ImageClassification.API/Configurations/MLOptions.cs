@@ -1,8 +1,11 @@
-﻿namespace ImageClassification.API.Configurations
+﻿using ImageClassification.API.Interfaces;
+
+namespace ImageClassification.API.Configurations
 {
-    public class MLModelOptions
+    public class MLModelOptions : IConfigurationOptions
     {
-        public const string MLModel = "MLModel";
+        public string SectionPath => "MLModel";
+
         public string MLModelFilePath { get; set; }
         public string WarmupImagePath { get; set; }
     }

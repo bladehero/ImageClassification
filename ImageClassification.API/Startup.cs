@@ -28,26 +28,26 @@ namespace ImageClassification.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            #region Default options
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
-            }); 
-            
+            });
             services.Configure<RouteOptions>(options =>
             {
                 options.ConstraintMap.Add(typeof(ImageParsingStartegyConstraint).GetDescription(), typeof(ImageParsingStartegyConstraint));
             });
+            #endregion
 
-            services.Configure<MLModelOptions>(Configuration.GetSection(MLModelOptions.MLModel));
-            
+            services.ConfigureCustomOptions(Configuration);
             services.AddCustomServices();
 
             services.AddCors();
+
+            #region Controllers
             services.AddControllers()
                     .AddNewtonsoftJson(options =>
                     {
@@ -55,6 +55,9 @@ namespace ImageClassification.API
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     });
             services.AddRazorPages();
+            #endregion
+
+            #region Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ImageClassification.API", Version = "v1" });
@@ -64,15 +67,17 @@ namespace ImageClassification.API
                 c.IncludeXmlComments(xmlPath);
             });
             services.AddSwaggerGenNewtonsoftSupport();
+            #endregion
 
+            #region ML Setup
             // Register the PredictionEnginePool as a service in the IoC container for DI.
             services.AddPredictionEnginePool<InMemoryImageData, ImagePrediction>()
                     .FromFile(Configuration["MLModel:MLModelFilePath"]);
 
             services.WarmUpPredictionEnginePool(Configuration["MLModel:WarmupImagePath"]);
+            #endregion
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

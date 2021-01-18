@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Swagger\" />
+    <Folder Include="Storage\" />
     <Folder Include="TestImages\" />
   </ItemGroup>
 
