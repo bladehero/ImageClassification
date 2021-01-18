@@ -9,12 +9,15 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using Category = ImageClassification.Core.Preparation.Models.Category;
 
 namespace ImageClassification.Preparation
 {
     public class Program
     {
+        static bool useLog = false;
+
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Scenario `{0}` has been started", typeof(Program).Assembly.GetName().Name);
@@ -38,7 +41,7 @@ namespace ImageClassification.Preparation
                 EstimatedCount = 100
             };
 
-            const int maxWidth = 1920; 
+            const int maxWidth = 1920;
             #endregion
 
             #region Paths
@@ -70,10 +73,11 @@ namespace ImageClassification.Preparation
 
             #endregion
 
-            var context = new ParsingContext();
-            var parsedImages = context.ParseImagesAsync(parseRequest);
-
             var stopwatch = Stopwatch.StartNew();
+            var context = new ParsingContext();
+
+            var progress = GetProgress(stopwatch);
+            var parsedImages = context.ParseImagesAsync(parseRequest, progress);
 
             using (var fs = new FileStream(archive, FileMode.CreateNew))
             {
@@ -111,10 +115,13 @@ namespace ImageClassification.Preparation
                         throw;
                     }
 
-                    Console.WriteLine("Image {0}, Category: `{1}`, Keyword: `{2}` was parsed",
-                                      index,
-                                      parsedImage.Category,
-                                      parsedImage.Keyword);
+                    if (useLog)
+                    {
+                        Console.WriteLine("Image {0}, Category: `{1}`, Keyword: `{2}` was parsed",
+                                          index,
+                                          parsedImage.Category,
+                                          parsedImage.Keyword);
+                    }
 
                     indexes[parsedImage.Keyword] += 1;
 
@@ -136,6 +143,67 @@ namespace ImageClassification.Preparation
         }
 
         #region Helper
+        private static IProgress<ParseProgress> GetProgress(Stopwatch stopwatch)
+        {
+            var progress = new Progress<ParseProgress>();
+
+            if (useLog)
+            {
+                progress.ProgressChanged += (_, data) =>
+                {
+                    var elapsed = stopwatch.Elapsed;
+                    ConsoleHelper.ColorWriteLine(ConsoleColor.DarkCyan,
+                                                 "{0}%: {1}/{2}, [Time Left: {3}]",
+                                                 Math.Round(data.EstimatedPercentage, 2),
+                                                 data.CurrentCount,
+                                                 data.EstimatedCount,
+                                                 elapsed / data.EstimatedProgress - elapsed);
+                };
+            }
+            else
+            {
+                var timer = new Timer(1000);
+                var current = (ParseProgress)null;
+                progress.ProgressChanged += (_, data) => current = data;
+
+
+                var startTop = Console.CursorTop + 1;
+
+                timer.Elapsed += (o, e) =>
+                {
+                    if (current is null)
+                    {
+                        return;
+                    }
+
+                    var progress = current.EstimatedProgress;
+                    if (current.EstimatedProgress >= 1)
+                    {
+                        stopwatch.Stop();
+                        timer.Dispose(); 
+                        progress = 1;
+                    }
+
+                    var elapsed = stopwatch.Elapsed;
+                    var width = Console.WindowWidth;
+                    var finished = (int)(width * progress);
+
+                    Console.SetCursorPosition(0, startTop);
+                    Console.WriteLine("{0:0.0}%",
+                                      current.EstimatedPercentage);
+                    Console.WriteLine("{0}/{1}",
+                                      current.CurrentCount,
+                                      current.EstimatedCount);
+                    Console.Write(new string('█', finished));
+                    Console.WriteLine(new string('_', width - finished));
+                    ConsoleHelper.ColorWriteLine(ConsoleColor.DarkCyan, "Left: [{0}]", elapsed / progress - elapsed);
+                };
+                timer.Start();
+            }
+
+            return progress;
+        }
+
         private static decimal GetIndexFromPath(string path,
                                                 string[] archivePattern,
                                                 (char Left, char Right) indexBracers)

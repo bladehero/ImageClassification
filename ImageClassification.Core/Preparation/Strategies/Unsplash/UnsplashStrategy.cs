@@ -3,6 +3,7 @@ using ImageClassification.Core.Preparation.Strategies.Unsplash.Internal;
 using ImageClassification.Shared.Common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.Http;
@@ -20,20 +21,61 @@ namespace ImageClassification.Core.Preparation.Strategies.Unsplash
         private const int pageSize = 30;
         private const int startFrom = 1;
 
-        public int MaxThreads { get; set; } = 4;
+        public int MaxThreads { get; set; } = 16;
 
-        public IEnumerable<ParsedImage> Parse(ParseRequest request, IProgress<float> progress = null)
+        public async Task<Image> Parse(string keyword, int index)
         {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                ThrowHelper.Argument($"'{nameof(keyword)}' cannot be null or whitespace", nameof(keyword));
+            }
+
+            if (index < 0)
+            {
+                ThrowHelper.ArgumentOutOfRange(nameof(index), index, "Value must be 0 or greater!");
+            }
+
+            var uri = new Uri(url).AddParameter("query", keyword)
+                                  .AddParameter("per_page", 1)
+                                  .AddParameter("page", index + 1);
+
+            var response = await httpClient.GetAsync<Response>(uri);
+            var result = response.Result.Results.First();
+            var download = await httpClient.GetAsync(result.Links.Download);
+            var stream = await download.Content.ReadAsStreamAsync();
+            var image = Image.FromStream(stream);
+            return image;
+        }
+
+        public IEnumerable<ParsedImage> Parse(ParseRequest request, IProgress<ParseProgress> progress = null)
+        {
+            if (request is null)
+            {
+                ThrowHelper.Argument($"'{nameof(request)}' cannot be null or whitespace", nameof(request));
+            }
+
             var collection = ParseAsync(request, progress).ToListAsync().Result;
             return collection;
         }
 
-        public async IAsyncEnumerable<ParsedImage> ParseAsync(ParseRequest request, IProgress<float> progress = null)
+        public async IAsyncEnumerable<ParsedImage> ParseAsync(ParseRequest request, IProgress<ParseProgress> progress = null)
         {
+            if (request is null)
+            {
+                ThrowHelper.ArgumentNull(nameof(request));
+            }
+
+            if (request.EstimatedCount < 1)
+            {
+                ThrowHelper.ArgumentOutOfRange(nameof(request.EstimatedCount), request.EstimatedCount, "Value must be 1 or greater!");
+            }
+
+
             var imagesPerCategory = (double)request.EstimatedCount / request.Categories.Count();
             var capacity = (int)Math.Ceiling(imagesPerCategory / pageSize) * request.Categories.Sum(x => x.Keywords.Count());
 
             var throttler = new SemaphoreSlim(MaxThreads);
+            var currentCount = 0;
             foreach (var category in request.Categories)
             {
                 var keywordsCount = category.Keywords.Count();
@@ -94,6 +136,12 @@ namespace ImageClassification.Core.Preparation.Strategies.Unsplash
 
                 foreach (var parsedImage in parsedImages)
                 {
+                    var data = new ParseProgress
+                    {
+                        CurrentCount = ++currentCount,
+                        EstimatedCount = request.EstimatedCount
+                    };
+                    progress?.Report(data);
                     yield return parsedImage;
                 }
 

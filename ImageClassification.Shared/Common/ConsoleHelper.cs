@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ImageClassification.Train.Common
+namespace ImageClassification.Shared.Common
 {
     public static class ConsoleHelper
     {

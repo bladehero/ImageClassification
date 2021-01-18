@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using ImageClassification.Core.Train.Models;
+using ImageClassification.Shared.Common;
 using ImageClassification.Train.Common;
 using Microsoft.ML;
 using Microsoft.ML.Data;

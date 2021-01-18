@@ -3,17 +3,14 @@ using ImageClassification.Core.Preparation.Strategies.Unsplash;
 using ImageClassification.Shared.Common;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Threading.Tasks;
 
 namespace ImageClassification.Core.Preparation
 {
     public class ParsingContext
     {
         private IImageParsingStrategy imageParsingStrategy;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Progress<float> Progress { get; }
 
         /// <summary>
         /// 
@@ -36,7 +33,6 @@ namespace ImageClassification.Core.Preparation
         /// </summary>
         public ParsingContext()
         {
-            Progress = new Progress<float>();
             ImageParsingStrategy = new UnsplashStrategy();
         }
 
@@ -52,11 +48,12 @@ namespace ImageClassification.Core.Preparation
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="keyword"></param>
+        /// <param name="index"></param>
         /// <returns></returns>
-        public IEnumerable<ParsedImage> ParseImages(ParseRequest request)
+        public async Task<Image> ParseImageAsync(string keyword, int index)
         {
-            var result = imageParsingStrategy.Parse(request, Progress);
+            var result = await imageParsingStrategy.Parse(keyword, index);
             return result;
         }
 
@@ -64,10 +61,23 @@ namespace ImageClassification.Core.Preparation
         /// 
         /// </summary>
         /// <param name="request"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        public IAsyncEnumerable<ParsedImage> ParseImagesAsync(ParseRequest request)
+        public IEnumerable<ParsedImage> ParseImages(ParseRequest request, IProgress<ParseProgress> progress = null)
         {
-            var result = imageParsingStrategy.ParseAsync(request, Progress);
+            var result = imageParsingStrategy.Parse(request, progress);
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="progress"></param>
+        /// <returns></returns>
+        public IAsyncEnumerable<ParsedImage> ParseImagesAsync(ParseRequest request, IProgress<ParseProgress> progress = null)
+        {
+            var result = imageParsingStrategy.ParseAsync(request, progress);
             return result;
         }
     }

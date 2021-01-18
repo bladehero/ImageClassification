@@ -1,6 +1,8 @@
 ﻿using ImageClassification.Core.Preparation.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Threading.Tasks;
 
 namespace ImageClassification.Core.Preparation
 {
@@ -9,10 +11,10 @@ namespace ImageClassification.Core.Preparation
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="progress"></param>
+        /// <param name="keyword"></param>
+        /// <param name="index"></param>
         /// <returns></returns>
-        IEnumerable<ParsedImage> Parse(ParseRequest request, IProgress<float> progress = null);
+        Task<Image> Parse(string keyword, int index);
 
         /// <summary>
         /// 
@@ -20,6 +22,14 @@ namespace ImageClassification.Core.Preparation
         /// <param name="request"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        IAsyncEnumerable<ParsedImage> ParseAsync(ParseRequest request, IProgress<float> progress = null);
+        IEnumerable<ParsedImage> Parse(ParseRequest request, IProgress<ParseProgress> progress = null);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="progress"></param>
+        /// <returns></returns>
+        IAsyncEnumerable<ParsedImage> ParseAsync(ParseRequest request, IProgress<ParseProgress> progress = null);
     }
 }
