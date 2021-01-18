@@ -16,7 +16,9 @@ namespace ImageClassification.Preparation
 {
     public class Program
     {
-        static bool useLog = false;
+        const bool useLog = false;
+        const int estimatedCountOfImages = 120;
+        const int maxWidthOfImage = 1920;
 
         public static async Task Main(string[] args)
         {
@@ -38,10 +40,8 @@ namespace ImageClassification.Preparation
             var parseRequest = new ParseRequest
             {
                 Categories = categories,
-                EstimatedCount = 100
+                EstimatedCount = estimatedCountOfImages
             };
-
-            const int maxWidth = 1920;
             #endregion
 
             #region Paths
@@ -93,9 +93,9 @@ namespace ImageClassification.Preparation
 
                     var image = parsedImage.Image;
                     var rawFormat = image.RawFormat;
-                    if (maxWidth < image.Width)
+                    if (maxWidthOfImage < image.Width)
                     {
-                        image = image.ProportionalResizeImageWidth(maxWidth);
+                        image = image.ProportionalResizeImageWidth(maxWidthOfImage);
                     }
 
                     var format = new ImageFormatConverter().ConvertToString(rawFormat).ToLower();
@@ -117,10 +117,12 @@ namespace ImageClassification.Preparation
 
                     if (useLog)
                     {
+#pragma warning disable CS0162 // Unreachable code detected
                         Console.WriteLine("Image {0}, Category: `{1}`, Keyword: `{2}` was parsed",
                                           index,
                                           parsedImage.Category,
                                           parsedImage.Keyword);
+#pragma warning restore CS0162 // Unreachable code detected
                     }
 
                     indexes[parsedImage.Keyword] += 1;
@@ -149,6 +151,7 @@ namespace ImageClassification.Preparation
 
             if (useLog)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 progress.ProgressChanged += (_, data) =>
                 {
                     var elapsed = stopwatch.Elapsed;
@@ -159,10 +162,11 @@ namespace ImageClassification.Preparation
                                                  data.EstimatedCount,
                                                  elapsed / data.EstimatedProgress - elapsed);
                 };
+#pragma warning restore CS0162 // Unreachable code detected
             }
             else
             {
-                var timer = new Timer(1000);
+                var timer = new Timer(200);
                 var current = (ParseProgress)null;
                 progress.ProgressChanged += (_, data) => current = data;
 
@@ -196,7 +200,8 @@ namespace ImageClassification.Preparation
                                       current.EstimatedCount);
                     Console.Write(new string('█', finished));
                     Console.WriteLine(new string('_', width - finished));
-                    ConsoleHelper.ColorWriteLine(ConsoleColor.DarkCyan, "Left: [{0}]", elapsed / progress - elapsed);
+                    ConsoleHelper.ColorWriteLine(ConsoleColor.DarkCyan, "Left: [{0:hh\\:mm\\:ss}]", elapsed / progress - elapsed);
+                    ConsoleHelper.ColorWriteLine(ConsoleColor.DarkGreen, "Elapsed: [{0:hh\\:mm\\:ss}]", elapsed);
                 };
                 timer.Start();
             }
