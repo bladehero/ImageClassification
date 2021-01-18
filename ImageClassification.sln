@@ -13,7 +13,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageClassification.Shared"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageClassification.Core", "ImageClassification.Core\ImageClassification.Core.csproj", "{2655181F-6B45-42F6-ADFD-BDCC351C366D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageClassification.Preparation_Train_Scenario", "ImageClassification.Preparation_Train_Scenario\ImageClassification.Preparation_Train_Scenario.csproj", "{618CA3D9-75CB-4D58-B63B-95692F7029B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageClassification.Preparation_Train_Scenario", "ImageClassification.Preparation_Train_Scenario\ImageClassification.Preparation_Train_Scenario.csproj", "{618CA3D9-75CB-4D58-B63B-95692F7029B1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{22B311D0-A5D8-493C-BD86-CD89BAF822B3}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

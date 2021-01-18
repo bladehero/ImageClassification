@@ -8,5 +8,5 @@ namespace ImageClassification.API.Delegates
     /// </summary>
     /// <param name="key">Strategy key.</param>
     /// <returns>Image parsing strategy.</returns>
-    public delegate IImageParsingStrategy ImageParsingResolver(ImageParsingStartegy key = ImageParsingStartegy.Default);
+    public delegate IImageParsingStrategy ImageParsingResolver(ImageParsingStrategy key = ImageParsingStrategy.Default);
 }

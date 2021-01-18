@@ -4,7 +4,7 @@ using ImageClassification.Core.Preparation.Strategies.Unsplash;
 using ImageClassification.Shared.Common;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace ImageClassification.Core.Preparation
@@ -37,10 +37,9 @@ namespace ImageClassification.Core.Preparation
         {
             ImageParsingStrategy = imageParsingStrategy;
         }
-
-        public async Task<Image> ParseImageAsync(string keyword, int index)
+        public async Task<(Stream Stream, string ContentType)> ParseImageAsync(string keyword, int index)
         {
-            var result = await imageParsingStrategy.Parse(keyword, index);
+            var result = await imageParsingStrategy.ParseContentAsync(keyword, index);
             return result;
         }
 

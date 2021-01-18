@@ -25,7 +25,7 @@ namespace ImageClassification.API.Extensions
                         var context = services.GetService<IParsingContext>();
                         return key switch
                         {
-                            ImageParsingStartegy.Test => services.GetService<TestStrategy>(),
+                            ImageParsingStrategy.Test => services.GetService<TestStrategy>(),
                             _ => context.Default,
                         };
                     });

@@ -5,6 +5,7 @@ using ImageClassification.Shared.Common;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -23,7 +24,7 @@ namespace ImageClassification.Core.Preparation.Strategies.Unsplash
 
         public int MaxThreads { get; set; } = 16;
 
-        async Task<Image> IImageParsingStrategy.Parse(string keyword, int index)
+        async Task<(Stream Stream, string ContentType)> IImageParsingStrategy.ParseContentAsync(string keyword, int index)
         {
             if (string.IsNullOrWhiteSpace(keyword))
             {
@@ -42,9 +43,10 @@ namespace ImageClassification.Core.Preparation.Strategies.Unsplash
             var response = await httpClient.GetAsync<Response>(uri);
             var result = response.Result.Results.First();
             var download = await httpClient.GetAsync(result.Links.Download);
+
             var stream = await download.Content.ReadAsStreamAsync();
-            var image = Image.FromStream(stream);
-            return image;
+            var contentType = download.Content.Headers.ContentType.MediaType;
+            return (stream, contentType);
         }
 
         IEnumerable<ParsedImage> IImageParsingStrategy.Parse(ParseRequest request, IProgress<ParseProgress> progress)

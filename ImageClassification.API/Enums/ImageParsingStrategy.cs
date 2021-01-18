@@ -1,6 +1,6 @@
 ﻿namespace ImageClassification.API.Enums
 {
-    public enum ImageParsingStartegy
+    public enum ImageParsingStrategy
     {
         Default,
         Test

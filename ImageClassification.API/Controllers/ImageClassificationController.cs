@@ -31,8 +31,13 @@ namespace ImageClassification.API.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Defines the category of provided image.
+        /// </summary>
+        /// <param name="imageFile">Image file.</param>
+        /// <returns>String as name classification.</returns>
         [HttpPost]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(400)]
         [Route("classify")]
         public async Task<IActionResult> Classify(IFormFile imageFile)

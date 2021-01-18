@@ -1,10 +1,12 @@
 ﻿using ImageClassification.API.Configurations;
 using ImageClassification.Core.Preparation.Interfaces;
 using ImageClassification.Core.Preparation.Models;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace ImageClassification.API.Services.ImageParsingStrategies
@@ -21,9 +23,11 @@ namespace ImageClassification.API.Services.ImageParsingStrategies
             _options = options.Value;
         }
 
-        Task<Image> IImageParsingStrategy.Parse(string keyword, int index)
+        Task<(Stream Stream, string ContentType)> IImageParsingStrategy.ParseContentAsync(string keyword, int index)
         {
-            return Task.FromResult(Image.FromFile(_options.WarmupImagePath));
+            Stream stream = File.OpenRead(_options.WarmupImagePath);
+            new FileExtensionContentTypeProvider().TryGetContentType(_options.WarmupImagePath, out string contentType);
+            return Task.FromResult((stream, contentType));
         }
 
         IEnumerable<ParsedImage> IImageParsingStrategy.Parse(ParseRequest request, IProgress<ParseProgress> progress)
