@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ImageClassification.API.Controllers
 {
-    [Route("api/[controller]/{source}")]
+    [Route("api/[controller]/{source:ImageParsingStrategy}")]
     [ApiController]
     public class ImageSourceController : Controller
     {

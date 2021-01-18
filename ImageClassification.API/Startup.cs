@@ -1,9 +1,11 @@
 using ImageClassification.API.Configurations;
 using ImageClassification.API.Extensions;
+using ImageClassification.API.Routing.Constraints;
 using ImageClassification.Shared.DataModels;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.ML;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
 
 namespace ImageClassification.API
 {
@@ -31,6 +34,11 @@ namespace ImageClassification.API
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
+            }); 
+            
+            services.Configure<RouteOptions>(options =>
+            {
+                options.ConstraintMap.Add(typeof(ImageParsingStartegyConstraint).GetDescription(), typeof(ImageParsingStartegyConstraint));
             });
 
             services.Configure<MLModelOptions>(Configuration.GetSection(MLModelOptions.MLModel));
