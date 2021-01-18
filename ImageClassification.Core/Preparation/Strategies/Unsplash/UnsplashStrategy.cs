@@ -41,8 +41,8 @@ namespace ImageClassification.Core.Preparation.Strategies.Unsplash
 
             var response = await httpClient.GetAsync<Response>(uri);
             var result = response.Result.Results.First();
-            using var download = await httpClient.GetAsync(result.Links.Download);
-            using var stream = await download.Content.ReadAsStreamAsync();
+            var download = await httpClient.GetAsync(result.Links.Download);
+            var stream = await download.Content.ReadAsStreamAsync();
             var image = Image.FromStream(stream);
             return image;
         }

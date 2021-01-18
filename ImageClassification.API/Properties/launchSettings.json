@@ -19,7 +19,7 @@
     "ImageClassification.API": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:49713/swagger",
+      "launchUrl": "https://localhost:5001/swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

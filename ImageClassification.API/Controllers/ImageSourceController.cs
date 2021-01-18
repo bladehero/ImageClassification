@@ -5,7 +5,6 @@ using ImageClassification.Core.Preparation.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
@@ -44,7 +43,9 @@ namespace ImageClassification.API.Controllers
             try
             {
                 using var image = await _parsingContext.ParseImageAsync(keyword, index);
-                return File(image.ToStream(), image.RawFormat.ToContentType());
+                var stream = image.ToStream();
+                var contentType = image.RawFormat.ToContentType();
+                return File(stream, contentType);
             }
             catch (Exception ex)
             {

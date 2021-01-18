@@ -37,6 +37,7 @@ namespace ImageClassification.API
             
             services.AddCustomServices();
 
+            services.AddCors();
             services.AddControllers()
                     .AddNewtonsoftJson(options =>
                     {
