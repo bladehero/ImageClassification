@@ -35,7 +35,7 @@ namespace ImageClassification.Preparation
             var parseRequest = new ParseRequest
             {
                 Categories = categories,
-                EstimatedCount = 2000
+                EstimatedCount = 100
             };
 
             const int maxWidth = 1920; 
