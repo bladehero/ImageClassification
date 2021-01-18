@@ -35,7 +35,7 @@ namespace ImageClassification.Preparation
             var parseRequest = new ParseRequest
             {
                 Categories = categories,
-                EstimatedCount = 100
+                EstimatedCount = 2000
             };
 
             const int maxWidth = 1920; 
@@ -100,7 +100,16 @@ namespace ImageClassification.Preparation
                     var entry = zip.CreateEntry(entryPath, CompressionLevel.Optimal);
 
                     using var stream = entry.Open();
-                    image.Save(stream, rawFormat);
+                    try
+                    {
+                        image.Save(stream, rawFormat);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
+                        throw;
+                    }
 
                     Console.WriteLine("Image {0}, Category: `{1}`, Keyword: `{2}` was parsed",
                                       index,
@@ -108,6 +117,12 @@ namespace ImageClassification.Preparation
                                       parsedImage.Keyword);
 
                     indexes[parsedImage.Keyword] += 1;
+
+                    image.Dispose();
+                    if (!image.Equals(parsedImage.Image))
+                    {
+                        parsedImage.Image.Dispose();
+                    }
                 }
             }
 

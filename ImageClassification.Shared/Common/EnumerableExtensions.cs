@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ImageClassification.Shared.Common
 {
-    internal static class EnumerableExtensions
+    public static class EnumerableExtensions
     {
         /// <summary>
         /// Helper method for chunking list into list of smaller lists.

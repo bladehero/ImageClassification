@@ -8,15 +8,15 @@ namespace ImageClassification.Shared.Common
 {
     public static class HttpClientExtensions
     {
-        public static async Task<T> GetAsync<T>(this HttpClient httpClient, Uri uri)
+        public static async Task<(IDisposable Disposable, T Result)> GetAsync<T>(this HttpClient httpClient, Uri uri)
         {
             var response = await httpClient.GetAsync(uri);
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<T>(content);
+                return (response, JsonConvert.DeserializeObject<T>(content));
             }
-            return default;
+            return (response, default);
         }
     }
 }
