@@ -4,7 +4,7 @@ namespace ImageClassification.API.Configurations
 {
     public class StorageOptions : IConfigurationOptions
     {
-        public string SectionPath => "StorageOptions";
+        string IConfigurationOptions.SectionPath => nameof(StorageOptions);
 
         public string StoragePath { get; set; }
     }

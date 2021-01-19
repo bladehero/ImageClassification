@@ -1,4 +1,3 @@
-using ImageClassification.API.Configurations;
 using ImageClassification.API.Extensions;
 using ImageClassification.API.Routing.Constraints;
 using ImageClassification.Shared.DataModels;
@@ -39,10 +38,12 @@ namespace ImageClassification.API
             services.Configure<RouteOptions>(options =>
             {
                 options.ConstraintMap.Add(typeof(ImageParsingStartegyConstraint).GetDescription(), typeof(ImageParsingStartegyConstraint));
+                options.ConstraintMap.Add(typeof(ClassifierNameConstraint).GetDescription(), typeof(ClassifierNameConstraint));
             });
             #endregion
 
             services.ConfigureCustomOptions(Configuration);
+
             services.AddCustomServices();
 
             services.AddCors();
@@ -58,13 +59,13 @@ namespace ImageClassification.API
             #endregion
 
             #region Swagger
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ImageClassification.API", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "ImageClassification.API", Version = "v1" });
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
+                options.IncludeXmlComments(xmlPath);
             });
             services.AddSwaggerGenNewtonsoftSupport();
             #endregion
@@ -74,7 +75,7 @@ namespace ImageClassification.API
             services.AddPredictionEnginePool<InMemoryImageData, ImagePrediction>()
                     .FromFile(Configuration["MLModel:MLModelFilePath"]);
 
-            services.WarmUpPredictionEnginePool(Configuration["MLModel:WarmupImagePath"]);
+            //services.WarmUpPredictionEnginePool(Configuration["MLModel:WarmupImagePath"]);
             #endregion
         }
 

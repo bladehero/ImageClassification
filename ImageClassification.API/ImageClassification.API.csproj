@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <Folder Include="Storage\" />
-    <Folder Include="TestImages\" />
+    <Folder Include="ML\TestImages\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,6 +5,7 @@ using ImageClassification.Shared;
 using ImageClassification.Shared.Common;
 using Microsoft.ML;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,7 @@ using System.Linq;
 namespace ImageClassification.Core.Train.Steps.Default
 {
     [DefaultStepCapture]
-    internal sealed class PrepareDataSetStep : BaseStep, ITrainStep<(string SourceDirectory, MLContext MLContext), IDataView>, ITrainStep
+    internal sealed class PrepareDataSetStep : BaseStep, ITrainStep<(string SourceDirectory, MLContext MLContext), (IDataView DataSet, IEnumerable<string> Classifications)>, ITrainStep
     {
         public override Stopwatch Stopwatch { get; set; }
         public override StepName StepName { get; } = StepName.PreparingDataSet;
@@ -27,7 +28,7 @@ namespace ImageClassification.Core.Train.Steps.Default
         /// </remarks>
         /// <param name="data">Path to directory where images will be stored and context of ML.NET for training model.</param>
         /// <returns>Shuffled full image file paths data set.</returns>
-        public IDataView Execute((string SourceDirectory, MLContext MLContext) data)
+        public (IDataView DataSet, IEnumerable<string> Classifications) Execute((string SourceDirectory, MLContext MLContext) data)
         {
             (string source, MLContext mlContext) = data;
 
@@ -55,7 +56,7 @@ namespace ImageClassification.Core.Train.Steps.Default
 
             Log?.Invoke(GenerateFinished($"Data set is prepared"));
 
-            return shuffledFullImageFilePathsDataset;
+            return (shuffledFullImageFilePathsDataset, images.Select(x => x.Label));
         }
 
         protected override object ExecuteImpl(object data)

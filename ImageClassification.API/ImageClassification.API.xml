@@ -4,21 +4,44 @@
         <name>ImageClassification.API</name>
     </assembly>
     <members>
-        <member name="M:ImageClassification.API.Controllers.ImageClassificationController.Classify(Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:ImageClassification.API.Controllers.Images.ClassificationController.Get(System.String)">
+            <summary>
+            If exists classifier, returns all classifications that classifier can produce.
+            </summary>
+            <param name="classifier">Name of classifier.</param>
+            <returns>Collection of possible classifications.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.Images.ClassificationController.Post(System.String,Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
             Defines the category of provided image.
             </summary>
+            <param name="classifier">Name of classifier.</param>
             <param name="imageFile">Image file.</param>
             <returns>String as name classification.</returns>
         </member>
-        <member name="M:ImageClassification.API.Controllers.ImageSourceController.Get(ImageClassification.API.Enums.ImageParsingStrategy,System.String,System.Int32)">
+        <member name="M:ImageClassification.API.Controllers.Images.ClassifiersController.Get">
+            <summary>
+            Enumerate all classifiers are stored.
+            </summary>
+            <returns>Collection of classifiers' names.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.Images.SourceController.Get(ImageClassification.API.Enums.ImageParsingStrategy,System.String,System.Int32)">
             <summary>
             Gets an image by keyword and index.
             </summary>
             <param name="source">Type of source to use.</param>
             <param name="keyword">Keyword for search.</param>
             <param name="index">Index as a position of searching</param>
-            <returns>Stream result as <see cref="T:Microsoft.AspNetCore.Mvc.FileStreamResult">FileStreamResult</see>.</returns>
+            <returns>Stream result as <see cref="T:Microsoft.AspNetCore.Mvc.FileStreamResult">FileStream</see>.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.Images.SourceController.Post(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String)">
+            <summary>
+            Uploads image to folder for future trainnings.
+            </summary>
+            <param name="imageFile">Image file.</param>
+            <param name="folder">Folder where file should be uploaded. Folder should be a single section.</param>
+            <param name="classification">Classification label.</param>
+            <returns>Returns file name if everything went well.</returns>
         </member>
         <member name="T:ImageClassification.API.Delegates.ImageParsingResolver">
             <summary>

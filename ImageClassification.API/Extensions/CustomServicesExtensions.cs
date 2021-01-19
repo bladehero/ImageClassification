@@ -15,6 +15,7 @@ namespace ImageClassification.API.Extensions
         {
             services.ConfigureOptions<MLModelOptions>(configuration);
             services.ConfigureOptions<StorageOptions>(configuration);
+            services.ConfigureOptions<ImageSourceUploadOptions>(configuration);
 
             return services;
         }

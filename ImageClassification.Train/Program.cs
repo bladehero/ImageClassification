@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using ImageClassification.Core.Train;
 using ImageClassification.Core.Train.Models;
 using ImageClassification.Shared.Common;
 using ImageClassification.Train.Common;
@@ -27,9 +29,9 @@ namespace ImageClassification.Train
 
             DownloadDataSet(source);
 
-            var trainer = new Core.Train.DefaultTrainWrapper(source)
+            IDefaultTrainWrapper trainer = new DefaultTrainWrapper(source)
             {
-                MeasureTime = true,
+                MeasureTime = true
             };
 
             trainer.ImageMetricsUpdated += ConsoleImageMetricsUpdated;
@@ -42,13 +44,13 @@ namespace ImageClassification.Train
             {
                 File.Delete(destination);
             }
-            var success = await trainer.TrainAsync(destination);
+            var classifications = await trainer.TrainAsync(destination);
 
             #region Results
             Console.WriteLine();
             Console.WriteLine("Scenario `{0}` has been finished {1}",
                               typeof(Program).Assembly.GetName().Name,
-                              (success ? "successfully" : "with failure, check the logs."));
+                              (classifications.Count() > 0 ? "successfully" : "with failure, check the logs."));
             Console.WriteLine();
             #endregion
         }

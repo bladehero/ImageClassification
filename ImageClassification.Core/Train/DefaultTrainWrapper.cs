@@ -9,11 +9,18 @@ using static Microsoft.ML.Vision.ImageClassificationTrainer;
 using System.Reflection;
 using static Microsoft.ML.DataOperationsCatalog;
 using ImageClassification.Shared.Common;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
 
 namespace ImageClassification.Core.Train
 {
-    public class DefaultTrainWrapper
+    public class DefaultTrainWrapper : IDefaultTrainWrapper
     {
+        #region Constants
+        public const string ClassificationsFileName = ".classifications";
+        #endregion
+
         #region Private fields
         private Stopwatch _stopwatch;
         private double testFraction = 0.1;
@@ -175,7 +182,7 @@ namespace ImageClassification.Core.Train
         /// </summary>
         /// <param name="stream">Stream where is saved trained model.</param>
         /// <returns>Boolean flag of success.</returns>
-        public async Task<bool> TrainAsync(Stream stream)
+        public async Task<IEnumerable<string>> TrainAsync(Stream stream)
         {
             var totalElapsed = new TimeSpan();
 
@@ -191,12 +198,12 @@ namespace ImageClassification.Core.Train
                 totalElapsed += Stopwatch.RestartPull();
             }
 
-            var prepareDataSet = StepCollection.GetStep<(string, MLContext), IDataView>(StepName.PreparingDataSet);
+            var prepareDataSet = StepCollection.GetStep<(string, MLContext), (IDataView DataSet, IEnumerable<string> Classifications)>(StepName.PreparingDataSet);
             var shuffledDataSet = prepareDataSet.Execute((Folder, mlContext));
             totalElapsed += Stopwatch.RestartPull();
 
             var loadImages = StepCollection.GetStep<(string, MLContext, IDataView), IDataView>(StepName.LoadingImages);
-            var inMemoryDataSet = loadImages.Execute((Folder, mlContext, shuffledDataSet));
+            var inMemoryDataSet = loadImages.Execute((Folder, mlContext, shuffledDataSet.DataSet));
             totalElapsed += Stopwatch.RestartPull();
 
             var splitData = StepCollection.GetStep<(MLContext, IDataView, double), TrainTestData>(StepName.SplittingData);
@@ -235,7 +242,15 @@ namespace ImageClassification.Core.Train
                 Stopwatch = null;
             }
 
-            return success;
+            var classifications = shuffledDataSet.Classifications.ToHashSet();
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Update))
+            {
+                var entry = zip.CreateEntry(ClassificationsFileName);
+                using var entryStream = entry.Open();
+                using var writer = new StreamWriter(entryStream);
+                writer.Write(string.Join(Environment.NewLine, classifications));
+            }
+            return classifications;
         }
 
         /// <summary>
@@ -243,7 +258,7 @@ namespace ImageClassification.Core.Train
         /// </summary>
         /// <param name="destination">Path to file where is saved trained model.</param>
         /// <returns>Boolean flag of success.</returns>
-        public async Task<bool> TrainAsync(string destination, FileMode fileMode = FileMode.CreateNew)
+        public async Task<IEnumerable<string>> TrainAsync(string destination, FileMode fileMode = FileMode.CreateNew)
         {
             using var stream = new FileStream(destination, fileMode);
             return await TrainAsync(stream);
