@@ -16,7 +16,7 @@
             Defines the category of provided image.
             </summary>
             <param name="classifier">Name of classifier.</param>
-            <param name="imageFile">Image file.</param>
+            <param name="image">Image file.</param>
             <returns>String as name classification.</returns>
         </member>
         <member name="M:ImageClassification.API.Controllers.Images.ClassifiersController.Get">
@@ -25,20 +25,23 @@
             </summary>
             <returns>Collection of classifiers' names.</returns>
         </member>
-        <member name="M:ImageClassification.API.Controllers.Images.SourceController.Get(ImageClassification.API.Enums.ImageParsingStrategy,System.String,System.Int32)">
+        <member name="M:ImageClassification.API.Controllers.Images.SourceController.Get(System.String,System.Int32,ImageClassification.API.Enums.ImageParsingStrategy)">
             <summary>
             Gets an image by keyword and index.
             </summary>
-            <param name="source">Type of source to use.</param>
+            <param name="source">Image parsing strategy.</param>
             <param name="keyword">Keyword for search.</param>
             <param name="index">Index as a position of searching</param>
+            <remarks>
+            Can be used with a parameter `source` for using specific strategies.
+            </remarks>
             <returns>Stream result as <see cref="T:Microsoft.AspNetCore.Mvc.FileStreamResult">FileStream</see>.</returns>
         </member>
         <member name="M:ImageClassification.API.Controllers.Images.SourceController.Post(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String)">
             <summary>
             Uploads image to folder for future trainnings.
             </summary>
-            <param name="imageFile">Image file.</param>
+            <param name="image">Image file.</param>
             <param name="folder">Folder where file should be uploaded. Folder should be a single section.</param>
             <param name="classification">Classification label.</param>
             <returns>Returns file name if everything went well.</returns>

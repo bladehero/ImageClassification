@@ -6,6 +6,7 @@ using ImageClassification.API.Services;
 using ImageClassification.API.Services.ImageParsingStrategies;
 using ImageClassification.Core.Preparation;
 using ImageClassification.Core.Preparation.Interfaces;
+using ImageClassification.Shared.DataModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,7 +26,11 @@ namespace ImageClassification.API.Extensions
         public static IServiceCollection AddCustomServices(this IServiceCollection services)
         {
             services.AddSingleton<IExceptionMapper, ExceptionMapper>();
+            services.AddSingleton<IPredictionEnginePoolService<InMemoryImageData, ImagePrediction>,
+                                  PredictionEnginePoolService<InMemoryImageData, ImagePrediction>>();
+            services.AddScoped<IClassificationService, ClassificationService>();
             services.AddImageParsingStrategies();
+            services.AddScoped<IImageSourceService, ImageSourceService>();
 
             return services;
         }
@@ -39,7 +44,7 @@ namespace ImageClassification.API.Extensions
                         var context = services.GetService<IParsingContext>();
                         return key switch
                         {
-                            ImageParsingStrategy.Test => services.GetService<TestStrategy>(),
+                            ImageParsingStrategy.TestImageParsing => services.GetService<TestStrategy>(),
                             _ => context.Default,
                         };
                     });

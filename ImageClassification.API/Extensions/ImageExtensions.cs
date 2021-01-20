@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -10,13 +11,35 @@ namespace ImageClassification.API.Extensions
 {
     public static class ImageExtensions
     {
+        private readonly static List<ImageOptions.ImageFormat> _canBeUsed;
+        static ImageExtensions()
+        {
+            _canBeUsed = new List<ImageOptions.ImageFormat>
+            {
+                ImageOptions.ImageFormat.jpeg, ImageOptions.ImageFormat.png
+            };
+        }
+        public static IReadOnlyCollection<ImageOptions.ImageFormat> CanBeUsed => _canBeUsed.AsReadOnly();
+        public static void AddFormat(ImageOptions.ImageFormat format)
+        {
+            if (!_canBeUsed.Contains(format))
+            {
+                _canBeUsed.Add(format);
+            }
+        }
+        public static void RemoveFormat(ImageOptions.ImageFormat format)
+        {
+            _canBeUsed.Remove(format);
+        }
+
         public static bool IsValidImage(this byte[] image)
         {
             var imageFormat = GetImageFormat(image);
             return imageFormat == ImageOptions.ImageFormat.jpeg ||
                    imageFormat == ImageOptions.ImageFormat.png;
         }
-        public static class ImageOptions {
+        public static class ImageOptions
+        {
             public enum ImageFormat
             {
                 bmp,

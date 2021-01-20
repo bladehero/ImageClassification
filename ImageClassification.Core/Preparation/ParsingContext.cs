@@ -4,14 +4,13 @@ using ImageClassification.Core.Preparation.Strategies.Unsplash;
 using ImageClassification.Shared.Common;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace ImageClassification.Core.Preparation
 {
     public class ParsingContext : IParsingContext
     {
-        private IImageParsingStrategy imageParsingStrategy;
+        private IImageParsingStrategy _imageParsingStrategy;
 
         public IImageParsingStrategy Default => new UnsplashStrategy();
 
@@ -24,7 +23,7 @@ namespace ImageClassification.Core.Preparation
                     ThrowHelper.NullReference(nameof(ImageParsingStrategy));
                 }
 
-                imageParsingStrategy = value;
+                _imageParsingStrategy = value;
             }
         }
 
@@ -37,21 +36,21 @@ namespace ImageClassification.Core.Preparation
         {
             ImageParsingStrategy = imageParsingStrategy;
         }
-        public async Task<(Stream Stream, string ContentType)> ParseImageAsync(string keyword, int index)
+        public async Task<ImageResult> ParseImageAsync(string keyword, int index)
         {
-            var result = await imageParsingStrategy.ParseContentAsync(keyword, index);
+            var result = await _imageParsingStrategy.ParseContentAsync(keyword, index);
             return result;
         }
 
         public IEnumerable<ParsedImage> ParseImages(ParseRequest request, IProgress<ParseProgress> progress = null)
         {
-            var result = imageParsingStrategy.Parse(request, progress);
+            var result = _imageParsingStrategy.Parse(request, progress);
             return result;
         }
 
         public IAsyncEnumerable<ParsedImage> ParseImagesAsync(ParseRequest request, IProgress<ParseProgress> progress = null)
         {
-            var result = imageParsingStrategy.ParseAsync(request, progress);
+            var result = _imageParsingStrategy.ParseAsync(request, progress);
             return result;
         }
     }

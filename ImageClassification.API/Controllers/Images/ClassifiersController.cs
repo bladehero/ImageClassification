@@ -1,10 +1,6 @@
-﻿using ImageClassification.API.Configurations;
+﻿using ImageClassification.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace ImageClassification.API.Controllers.Images
 {
@@ -12,14 +8,11 @@ namespace ImageClassification.API.Controllers.Images
     [ApiController]
     public class ClassifiersController : ControllerBase
     {
-        private readonly ILogger<ClassifiersController> _logger;
-        private readonly MLModelOptions _mlOptions;
+        private readonly IClassificationService _classificationService;
 
-        public ClassifiersController(ILogger<ClassifiersController> logger,
-                                     IOptions<MLModelOptions> mlOptions)
+        public ClassifiersController(IClassificationService classificationService)
         {
-            _logger = logger;
-            _mlOptions = mlOptions.Value;
+            _classificationService = classificationService;
         }
 
         /// <summary>
@@ -32,19 +25,7 @@ namespace ImageClassification.API.Controllers.Images
         [ProducesResponseType(500)]
         public IEnumerable<string> Get()
         {
-            var path = _mlOptions.MLModelFilePath;
-            if (!Directory.Exists(path))
-            {
-                throw new DirectoryNotFoundException("Not found repository for storaging classifiers");
-            }
-
-            var classifiers = Directory.GetFiles(path, "*.zip", SearchOption.AllDirectories);
-            if (classifiers.Length == 0)
-            {
-                throw new FileNotFoundException("System has no classifiers yet!");
-            }
-
-            return classifiers.Select(path => Path.GetFileNameWithoutExtension(path));
+            return _classificationService.GetAllClassifiers();
         }
     }
 }

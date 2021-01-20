@@ -2,7 +2,7 @@
 {
     public enum ImageParsingStrategy
     {
-        Default,
-        Test
+        DefaultImageParsing,
+        TestImageParsing
     }
 }

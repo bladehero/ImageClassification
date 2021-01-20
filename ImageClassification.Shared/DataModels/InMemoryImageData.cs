@@ -2,6 +2,11 @@
 {
     public class InMemoryImageData
     {
+        public InMemoryImageData(byte[] image)
+        {
+            Image = image;
+        }
+
         public InMemoryImageData(byte[] image, string label, string imageFileName)
         {
             Image = image;

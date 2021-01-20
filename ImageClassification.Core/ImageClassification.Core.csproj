@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="akarnokd.async-enumerable-dotnet" Version="0.0.4" />
     <PackageReference Include="Microsoft.Extensions.ML" Version="1.5.4" />
     <PackageReference Include="Microsoft.ML" Version="1.5.4" />
     <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="1.5.4" />

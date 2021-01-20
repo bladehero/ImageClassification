@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.ML;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -40,6 +41,8 @@ namespace ImageClassification.API
             });
             #endregion
 
+            services.AddSingleton(x => new MLContext(0));
+
             services.ConfigureCustomOptions(Configuration);
 
             services.AddCustomServices();
@@ -66,14 +69,6 @@ namespace ImageClassification.API
                 options.IncludeXmlComments(xmlPath);
             });
             services.AddSwaggerGenNewtonsoftSupport();
-            #endregion
-
-            #region ML Setup
-            // Register the PredictionEnginePool as a service in the IoC container for DI.
-            //services.AddPredictionEnginePool<InMemoryImageData, ImagePrediction>()
-            //        .FromFile(Configuration["MLModel:MLModelFilePath"]);
-
-            //services.WarmUpPredictionEnginePool(Configuration["MLModel:WarmupImagePath"]);
             #endregion
         }
 

@@ -23,18 +23,18 @@ namespace ImageClassification.API.Services.ImageParsingStrategies
             _options = options.Value;
         }
 
-        Task<(Stream Stream, string ContentType)> IImageParsingStrategy.ParseContentAsync(string keyword, int index)
+        Task<ImageResult> IImageParsingStrategy.ParseContentAsync(string keyword, int index)
         {
             Stream stream = File.OpenRead(_options.WarmupImagePath);
             new FileExtensionContentTypeProvider().TryGetContentType(_options.WarmupImagePath, out string contentType);
-            return Task.FromResult((stream, contentType));
+            return Task.FromResult(new ImageResult { Stream = stream, ContentType = contentType });
         }
 
         IEnumerable<ParsedImage> IImageParsingStrategy.Parse(ParseRequest request, IProgress<ParseProgress> progress)
         {
-            return new ParsedImage[] 
+            return new ParsedImage[]
             {
-                new ParsedImage 
+                new ParsedImage
                 {
                     Category = Category,
                     Image = Image.FromFile(_options.WarmupImagePath),

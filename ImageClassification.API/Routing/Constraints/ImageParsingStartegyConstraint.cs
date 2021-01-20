@@ -22,6 +22,7 @@ namespace ImageClassification.API.Routing.Constraints
 
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
+
             return values.TryGetValue(routeKey, out object value) && 
                    Enum.TryParse(value?.ToString(), out ImageParsingStrategy _);
         }
