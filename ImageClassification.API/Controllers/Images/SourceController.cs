@@ -10,9 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageClassification.API.Controllers.Images

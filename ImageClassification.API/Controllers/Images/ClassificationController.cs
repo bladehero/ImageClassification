@@ -10,12 +10,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ML;
 using Microsoft.Extensions.Options;
 using Microsoft.ML;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -46,12 +44,14 @@ namespace ImageClassification.API.Controllers.Images
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
+
+            // TODO: Load engine in a pool if it's starting being used
             if (context.RouteData.Values.TryGetValue("classifier", out object value))
                 if (value is string classifier)
                 {
                     var path = Path.Combine(_mlOptions.MLModelFilePath, Path.ChangeExtension(classifier, Constants.Extensions.Zip));
                     var mlContext = new MLContext();
-                    var trainedModel = mlContext.Model.Load(path, out DataViewSchema schema);
+                    var trainedModel = mlContext.Model.Load(path, out DataViewSchema _);
                     _predictionEngine = mlContext.Model.CreatePredictionEngine<InMemoryImageData, ImagePrediction>(trainedModel);
                 }
 
@@ -101,7 +101,7 @@ namespace ImageClassification.API.Controllers.Images
         /// <param name="imageFile">Image file.</param>
         /// <returns>String as name classification.</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(ClassificationPrediction), 200)]
+        [ProducesResponseType(typeof(ClassificationPredictionVM), 200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> Post(string classifier, IFormFile imageFile)
         {
@@ -133,7 +133,7 @@ namespace ImageClassification.API.Controllers.Images
             _logger.LogInformation($"Image processed in {elapsedMs} miliseconds");
 
             // Predict the image's label (The one with highest probability).
-            var imageBestLabelPrediction = new ClassificationPrediction
+            var imageBestLabelPrediction = new ClassificationPredictionVM
             {
                 PredictedLabel = prediction.PredictedLabel,
                 Probability = prediction.Score.Max(),

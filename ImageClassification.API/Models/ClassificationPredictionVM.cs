@@ -1,6 +1,6 @@
 ﻿namespace ImageClassification.API.Models
 {
-    public class ClassificationPrediction
+    public class ClassificationPredictionVM
     {
         public string ImageId { get; set; }
         public string PredictedLabel { get; set; }

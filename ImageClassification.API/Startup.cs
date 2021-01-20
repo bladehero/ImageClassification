@@ -1,6 +1,5 @@
 using ImageClassification.API.Extensions;
 using ImageClassification.API.Routing.Constraints;
-using ImageClassification.Shared.DataModels;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +7,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.ML;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -72,8 +70,8 @@ namespace ImageClassification.API
 
             #region ML Setup
             // Register the PredictionEnginePool as a service in the IoC container for DI.
-            services.AddPredictionEnginePool<InMemoryImageData, ImagePrediction>()
-                    .FromFile(Configuration["MLModel:MLModelFilePath"]);
+            //services.AddPredictionEnginePool<InMemoryImageData, ImagePrediction>()
+            //        .FromFile(Configuration["MLModel:MLModelFilePath"]);
 
             //services.WarmUpPredictionEnginePool(Configuration["MLModel:WarmupImagePath"]);
             #endregion

@@ -1,5 +1,4 @@
 ﻿using ImageClassification.API.Configurations;
-using ImageClassification.API.Enums;
 using ImageClassification.API.Global;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
