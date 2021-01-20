@@ -1,6 +1,8 @@
 ﻿using ImageClassification.API.Configurations;
 using ImageClassification.API.Delegates;
 using ImageClassification.API.Enums;
+using ImageClassification.API.Interfaces;
+using ImageClassification.API.Services;
 using ImageClassification.API.Services.ImageParsingStrategies;
 using ImageClassification.Core.Preparation;
 using ImageClassification.Core.Preparation.Interfaces;
@@ -22,6 +24,7 @@ namespace ImageClassification.API.Extensions
 
         public static IServiceCollection AddCustomServices(this IServiceCollection services)
         {
+            services.AddSingleton<IExceptionMapper, ExceptionMapper>();
             services.AddImageParsingStrategies();
 
             return services;
