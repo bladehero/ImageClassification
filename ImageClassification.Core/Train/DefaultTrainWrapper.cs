@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace ImageClassification.Core.Train
 {
-    public class DefaultTrainWrapper : IDefaultTrainWrapper
+    public class DefaultTrainWrapper : ITrainWrapper
     {
         #region Constants
         public const string ClassificationsFileName = ".classifications";

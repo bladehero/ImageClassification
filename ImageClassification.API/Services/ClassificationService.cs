@@ -34,23 +34,6 @@ namespace ImageClassification.API.Services
             _predictionEnginePoolService = predictionEnginePoolService;
         }
 
-        public IEnumerable<string> GetAllClassifiers()
-        {
-            var path = _mlOptions.MLModelFilePath;
-            if (!Directory.Exists(path))
-            {
-                throw new DirectoryNotFoundException("Not found repository for storaging classifiers");
-            }
-
-            var classifiers = Directory.GetFiles(path, "*.zip", SearchOption.AllDirectories);
-            if (classifiers.Length == 0)
-            {
-                throw new FileNotFoundException("System has no classifiers yet!");
-            }
-
-            return classifiers.Select(path => Path.GetFileNameWithoutExtension(path));
-        }
-
         public IAsyncEnumerable<string> GetPossibleClassifications(string classifier)
         {
             if (string.IsNullOrWhiteSpace(classifier))

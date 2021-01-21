@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
-namespace ImageClassification.API.Controllers.Images
+namespace ImageClassification.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

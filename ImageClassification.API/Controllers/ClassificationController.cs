@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ImageClassification.API.Controllers.Images
+namespace ImageClassification.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

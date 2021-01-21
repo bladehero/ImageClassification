@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ImageClassification.Core.Train
 {
-    public interface IDefaultTrainWrapper
+    public interface ITrainWrapper
     {
         string Archive { get; }
         bool DeleteArchiveAfterTrainning { get; set; }

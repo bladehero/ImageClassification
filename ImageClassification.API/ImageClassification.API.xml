@@ -4,14 +4,14 @@
         <name>ImageClassification.API</name>
     </assembly>
     <members>
-        <member name="M:ImageClassification.API.Controllers.Images.ClassificationController.Get(System.String)">
+        <member name="M:ImageClassification.API.Controllers.ClassificationController.Get(System.String)">
             <summary>
             If exists classifier, returns all classifications that classifier can produce.
             </summary>
             <param name="classifier">Name of classifier.</param>
             <returns>Collection of possible classifications.</returns>
         </member>
-        <member name="M:ImageClassification.API.Controllers.Images.ClassificationController.Post(System.String,Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:ImageClassification.API.Controllers.ClassificationController.Post(System.String,Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
             Defines the category of provided image.
             </summary>
@@ -19,13 +19,28 @@
             <param name="image">Image file.</param>
             <returns>String as name classification.</returns>
         </member>
-        <member name="M:ImageClassification.API.Controllers.Images.ClassifiersController.Get">
+        <member name="M:ImageClassification.API.Controllers.ClassifiersController.Get">
             <summary>
             Enumerate all classifiers are stored.
             </summary>
             <returns>Collection of classifiers' names.</returns>
         </member>
-        <member name="M:ImageClassification.API.Controllers.Images.SourceController.Get(System.String,System.Int32,ImageClassification.API.Enums.ImageParsingStrategy)">
+        <member name="M:ImageClassification.API.Controllers.ClassifiersController.Download(System.String)">
+            <summary>
+            Downloads a .zip file which represents TensorFlow model of classifier.
+            </summary>
+            <param name="classifier">Classifier name.</param>
+            <returns>Byte array (file) for specified classifier, if exists.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.ClassifiersController.Train(System.String,System.String)">
+            <summary>
+            Downloads a .zip file which represents TensorFlow model of classifier.
+            </summary>
+            <param name="imageFolder">Image folder.</param>
+            <param name="classifier">Classifier name.</param>
+            <returns>Byte array (file) for specified classifier, if exists.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.SourceController.Get(System.String,System.Int32,ImageClassification.API.Enums.ImageParsingStrategy)">
             <summary>
             Gets an image by keyword and index.
             </summary>
@@ -37,7 +52,7 @@
             </remarks>
             <returns>Stream result as <see cref="T:Microsoft.AspNetCore.Mvc.FileStreamResult">FileStream</see>.</returns>
         </member>
-        <member name="M:ImageClassification.API.Controllers.Images.SourceController.Post(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String)">
+        <member name="M:ImageClassification.API.Controllers.SourceController.Post(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String)">
             <summary>
             Uploads image to folder for future trainnings.
             </summary>

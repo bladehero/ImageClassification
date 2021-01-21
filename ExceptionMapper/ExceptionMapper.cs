@@ -38,7 +38,7 @@ namespace ExceptionMapper
 
             var mapping = _builder.Mappings.FirstOrDefault(x => x.Key.Equals(exception.GetType()));
 
-            var error = mapping.Value(exception);
+            var error = mapping.Value?.Invoke(exception);
 
             return error ?? InternalErrorData._default;
         }
