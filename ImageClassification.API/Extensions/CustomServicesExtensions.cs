@@ -1,4 +1,5 @@
-﻿using ImageClassification.API.Configurations;
+﻿using ExceptionMapper.Extensions;
+using ImageClassification.API.Configurations;
 using ImageClassification.API.Delegates;
 using ImageClassification.API.Enums;
 using ImageClassification.API.Interfaces;
@@ -25,7 +26,7 @@ namespace ImageClassification.API.Extensions
 
         public static IServiceCollection AddCustomServices(this IServiceCollection services)
         {
-            services.AddSingleton<IExceptionMapper, ExceptionMapper>();
+            services.AddCustomExceptionMapper();
             services.AddSingleton<IPredictionEnginePoolService<InMemoryImageData, ImagePrediction>,
                                   PredictionEnginePoolService<InMemoryImageData, ImagePrediction>>();
             services.AddScoped<IClassificationService, ClassificationService>();

@@ -46,9 +46,9 @@ namespace ImageClassification.API.Controllers.Images
         /// <returns>Collection of possible classifications.</returns>
         [HttpGet("{classifier:ClassifierName}")]
         [ProducesResponseType(typeof(IEnumerable<string>), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
         public IActionResult Get(string classifier)
         {
             var classifications = _classificationService.GetPossibleClassifications(classifier);
@@ -63,7 +63,9 @@ namespace ImageClassification.API.Controllers.Images
         /// <returns>String as name classification.</returns>
         [HttpPost("{classifier:ClassifierName}")]
         [ProducesResponseType(typeof(ClassificationPredictionVM), 200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Post(string classifier, IFormFile image)
         {
             var classification = await _classificationService.Classify(classifier, image);

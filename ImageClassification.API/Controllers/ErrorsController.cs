@@ -1,8 +1,11 @@
-﻿using ImageClassification.API.Interfaces;
+﻿using ExceptionMapper.Interfaces;
+using ImageClassification.API.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
+#nullable enable
 
 namespace ImageClassification.API.Controllers
 {
@@ -11,8 +14,6 @@ namespace ImageClassification.API.Controllers
     {
         private readonly ILogger<ErrorsController> _logger;
         private readonly IExceptionMapper _exceptionMapper;
-
-        public const string DefaultMessage = "Internal server error";
 
         public ErrorsController(ILogger<ErrorsController> logger, IExceptionMapper exceptionMapper)
         {
@@ -31,12 +32,16 @@ namespace ImageClassification.API.Controllers
                 return NotFound();
             }
 
-            var error = _exceptionMapper.Map(exception);
+            IErrorData error = _exceptionMapper.Map(exception);
 
-            _logger.LogError(exception, error?.Message);
+            _logger.LogError(exception, error.Message);
 
-            return StatusCode(error?.StatusCode ?? StatusCodes.Status500InternalServerError,
-                              error?.Data ?? error?.Message ?? DefaultMessage);
+            var model = new ErrorVM
+            {
+                Message = error.Message,
+                Data = error.Data
+            };
+            return StatusCode(error.StatusCode, model);
         }
     }
 }

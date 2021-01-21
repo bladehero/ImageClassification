@@ -1,5 +1,6 @@
 ﻿using ImageClassification.API.Enums;
 using ImageClassification.API.Interfaces;
+using ImageClassification.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -30,15 +31,14 @@ namespace ImageClassification.API.Controllers.Images
         /// <returns>Stream result as <see cref="FileStreamResult">FileStream</see>.</returns>
         [HttpGet]
         [ProducesResponseType(typeof(FileStreamResult), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Get(string keyword, int index, ImageParsingStrategy source = ImageParsingStrategy.DefaultImageParsing)
         {
             _imageSourceService.ChangeParsingStrategy(source);
             var imageResult = await _imageSourceService.ParseSingleImageAsync(keyword, index);
             return File(imageResult.Stream, imageResult.ContentType);
         }
-
 
         /// <summary>
         /// Uploads image to folder for future trainnings.
@@ -49,9 +49,9 @@ namespace ImageClassification.API.Controllers.Images
         /// <returns>Returns file name if everything went well.</returns>
         [HttpPost]
         [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(415)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status415UnsupportedMediaType)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Post([Required] IFormFile image, [Required] string folder, [Required] string classification)
         {
             var fileName = await _imageSourceService.UploadSingleImageAsync(image, folder, classification);

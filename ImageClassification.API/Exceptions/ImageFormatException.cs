@@ -9,16 +9,16 @@ namespace ImageClassification.API.Exceptions
     {
         public IEnumerable<string> CorrectFormats { get; set; }
 
-        public ImageFormatException()
+        public ImageFormatException() : this("Image format was invalid")
         {
         }
 
-        public ImageFormatException(params string[] formats) 
+        public ImageFormatException(params string[] formats)
             : this(formats.AsEnumerable())
         {
         }
 
-        public ImageFormatException(IEnumerable<string> formats) 
+        public ImageFormatException(IEnumerable<string> formats)
             : this($"Image formats can be used: {string.Join(",", formats)}")
         {
             CorrectFormats = formats;

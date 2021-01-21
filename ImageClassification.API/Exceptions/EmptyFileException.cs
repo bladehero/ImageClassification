@@ -5,7 +5,7 @@ namespace ImageClassification.API.Exceptions
 {
     public class EmptyFileException : FormatException
     {
-        public EmptyFileException()
+        public EmptyFileException() : base("File was empty")
         {
         }
 
