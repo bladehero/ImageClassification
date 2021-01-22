@@ -52,7 +52,28 @@
             </remarks>
             <returns>Stream result as <see cref="T:Microsoft.AspNetCore.Mvc.FileStreamResult">FileStream</see>.</returns>
         </member>
-        <member name="M:ImageClassification.API.Controllers.SourceController.Post(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String)">
+        <member name="M:ImageClassification.API.Controllers.StorageController.Get">
+            <summary>
+            Shows all available folders in storage.
+            </summary>
+            <returns>Collection of <see cref="T:ImageClassification.API.Models.StorageFolderVM">StorageFolderVM</see> with additional info.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.StorageController.Get(System.String)">
+            <summary>
+            Shows all classification folders and their info for specisfied folder.
+            </summary>
+            <param name="folder">Folder to search to.</param>
+            <returns>Collection of <see cref="T:ImageClassification.API.Models.StorageFolderClassificationVM">StorageFolderClassificationVM</see>.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.StorageController.Get(System.String,System.String)">
+            <summary>
+            Shows information related to the image with indexing.
+            </summary>
+            <param name="folder"></param>
+            <param name="classification"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.StorageController.Post(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String)">
             <summary>
             Uploads image to folder for future trainnings.
             </summary>

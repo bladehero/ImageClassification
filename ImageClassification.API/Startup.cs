@@ -72,7 +72,6 @@ namespace ImageClassification.API
             services.AddSwaggerGenNewtonsoftSupport();
             #endregion
 
-
             services.AddSignalR();
         }
 

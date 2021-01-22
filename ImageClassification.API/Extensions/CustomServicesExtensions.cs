@@ -32,6 +32,7 @@ namespace ImageClassification.API.Extensions
             services.AddScoped<IClassifierService, ClassifierService>();
             services.AddImageParsingStrategies();
             services.AddScoped<IImageSourceService, ImageSourceService>();
+            services.AddScoped<IStorageService, StorageService>();
             services.AddScoped<ITrainProxyWrapper, TrainWrapperProxy>();
 
             return services;

@@ -29,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Storage\" />
     <Folder Include="ML\TestImages\" />
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>

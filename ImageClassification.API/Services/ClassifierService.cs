@@ -94,9 +94,9 @@ namespace ImageClassification.API.Services
             var imageFolderPath = Path.Combine(_hostingEnvironment.ContentRootPath, _storageOptions.StoragePath, imageFolder);
             _trainProxyWrapper.Path = imageFolderPath;
 
-            _trainProxyWrapper.ProgressChanged += _trainProxyWrapper_ProgressChanged;
-            _trainProxyWrapper.MulticlassMetricsUpdated += _trainProxyWrapper_MulticlassMetricsUpdated;
-            _trainProxyWrapper.ImageMetricsUpdated += _trainProxyWrapper_ImageMetricsUpdated;
+            _trainProxyWrapper.ProgressChanged += TrainProxyWrapper_ProgressChanged;
+            _trainProxyWrapper.MulticlassMetricsUpdated += TrainProxyWrapper_MulticlassMetricsUpdated;
+            _trainProxyWrapper.ImageMetricsUpdated += TrainProxyWrapper_ImageMetricsUpdated;
 
             _trainProxyWrapper.MeasureTime = true;
 
@@ -105,7 +105,7 @@ namespace ImageClassification.API.Services
         }
 
         #region Event Handlers
-        private async void _trainProxyWrapper_ImageMetricsUpdated(Microsoft.ML.Vision.ImageClassificationTrainer.ImageClassificationMetrics metrics)
+        private async void TrainProxyWrapper_ImageMetricsUpdated(Microsoft.ML.Vision.ImageClassificationTrainer.ImageClassificationMetrics metrics)
         {
             if (metrics.Train is Microsoft.ML.Vision.ImageClassificationTrainer.TrainMetrics trainMetrics)
             {
@@ -127,11 +127,11 @@ namespace ImageClassification.API.Services
                 await _trainLogHub.Clients.All.SendAsync("Log", string.Format("Image with index {0} was processed out.", bottleneckMetrics.Index));
             }
         }
-        private async void _trainProxyWrapper_ProgressChanged(Core.Train.Models.TrainProgress progress)
+        private async void TrainProxyWrapper_ProgressChanged(Core.Train.Models.TrainProgress progress)
         {
             await _trainLogHub.Clients.All.SendAsync("Log", $"<b>[Progress]</b> Step: {progress.Current}, Status: {progress.Status}, Elapsed: <b>[{progress.Elapsed}]</b>, <small>Message: {progress.Message}</small>");
         }
-        private async void _trainProxyWrapper_MulticlassMetricsUpdated(Microsoft.ML.Data.MulticlassClassificationMetrics metrics)
+        private async void TrainProxyWrapper_MulticlassMetricsUpdated(Microsoft.ML.Data.MulticlassClassificationMetrics metrics)
         {
             await _trainLogHub.Clients.All.SendAsync("Log", string.Format("Log-loss: {0}", metrics.LogLoss));
             await _trainLogHub.Clients.All.SendAsync("Log", string.Format("Log-loss measures the performance of a classifier with respect to how much the predicted probabilities diverge from the true class label. Lower log-loss indicates a better model. A perfect model, which predicts a probability of 1 for the true class, will have a log-loss of 0."));
