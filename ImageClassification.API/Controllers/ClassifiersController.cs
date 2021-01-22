@@ -1,7 +1,9 @@
-﻿using ImageClassification.API.Interfaces;
+﻿using ImageClassification.API.Hubs;
+using ImageClassification.API.Interfaces;
 using ImageClassification.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -55,14 +57,14 @@ namespace ImageClassification.API.Controllers
         /// <param name="classifier">Classifier name.</param>
         /// <returns>Byte array (file) for specified classifier, if exists.</returns>
         [HttpPatch("train/{classifier}")]
-        [ProducesResponseType(typeof(TimeSpan?), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Train([Required] string imageFolder, [Required] string classifier)
         {
             var trainWrapper = await _classifierService.TrainClassifier(imageFolder, classifier);
-
-            return Ok(trainWrapper.Stopwatch?.Elapsed);
+            return Ok();
         }
     }
 }

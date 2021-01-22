@@ -1,4 +1,5 @@
 using ImageClassification.API.Extensions;
+using ImageClassification.API.Hubs;
 using ImageClassification.API.Routing.Constraints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -70,6 +71,9 @@ namespace ImageClassification.API
             });
             services.AddSwaggerGenNewtonsoftSupport();
             #endregion
+
+
+            services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -87,6 +91,7 @@ namespace ImageClassification.API
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ImageClassification.API v1"));
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseRouting();
 
@@ -95,6 +100,8 @@ namespace ImageClassification.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapRazorPages();
+                endpoints.MapHub<TrainLogHub>("/trainLog");
             });
         }
     }

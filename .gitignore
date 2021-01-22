@@ -233,3 +233,4 @@ ImageClassification.Train/assets/
 ImageClassification.Preparation/assets/
 ImageClassification.Preparation_Train_Scenario/assets/
 ImageClassification.API/Storage/
+ImageClassification.API/ML/Classifiers
