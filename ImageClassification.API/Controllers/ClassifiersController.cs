@@ -1,10 +1,7 @@
-﻿using ImageClassification.API.Hubs;
-using ImageClassification.API.Interfaces;
+﻿using ImageClassification.API.Interfaces;
 using ImageClassification.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -35,6 +32,17 @@ namespace ImageClassification.API.Controllers
             return _classifierService.GetAllClassifiers();
         }
 
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
+        public IActionResult Delete(string classifier)
+        {
+            _classifierService.DeleteClassifier(classifier);
+            return Ok();
+        }
+
         /// <summary>
         /// Downloads a .zip file which represents TensorFlow model of classifier.
         /// </summary>
@@ -63,7 +71,7 @@ namespace ImageClassification.API.Controllers
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Train([Required] string imageFolder, [Required] string classifier)
         {
-            var trainWrapper = await _classifierService.TrainClassifier(imageFolder, classifier);
+            await _classifierService.TrainClassifier(imageFolder, classifier);
             return Ok();
         }
     }

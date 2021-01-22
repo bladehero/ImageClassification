@@ -6,7 +6,6 @@ using ImageClassification.API.Services;
 using ImageClassification.API.Services.ImageParsingStrategies;
 using ImageClassification.Core.Preparation;
 using ImageClassification.Core.Preparation.Interfaces;
-using ImageClassification.Core.Train;
 using ImageClassification.Shared.DataModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

@@ -2,7 +2,6 @@
 using ImageClassification.API.Global;
 using ImageClassification.API.Hubs;
 using ImageClassification.API.Interfaces;
-using ImageClassification.Core.Train;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -64,7 +63,23 @@ namespace ImageClassification.API.Services
             return File.OpenRead(path);
         }
 
-        public async Task<ITrainWrapper> TrainClassifier(string imageFolder, string classifier)
+        public void DeleteClassifier(string classifier)
+        {
+            if (string.IsNullOrWhiteSpace(classifier))
+            {
+                throw new ArgumentException($"'{nameof(classifier)}' cannot be null or whitespace", nameof(classifier));
+            }
+
+            var path = Path.Join(_mlOptions.MLModelFilePath, $"{classifier}{Constants.Extensions.Zip}");
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException("While deleting file wasn't found!", classifier);
+            }
+
+            File.Delete(path);
+        }
+
+        public async Task TrainClassifier(string imageFolder, string classifier)
         {
             if (string.IsNullOrWhiteSpace(imageFolder))
             {
@@ -87,10 +102,7 @@ namespace ImageClassification.API.Services
 
             var pathToSave = Path.Combine(_mlOptions.MLModelFilePath, Path.ChangeExtension(classifier, Constants.Extensions.Zip));
             await _trainProxyWrapper.TrainAsync(pathToSave);
-
-            return _trainProxyWrapper;
         }
-
 
         #region Event Handlers
         private async void _trainProxyWrapper_ImageMetricsUpdated(Microsoft.ML.Vision.ImageClassificationTrainer.ImageClassificationMetrics metrics)
