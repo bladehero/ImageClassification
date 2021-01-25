@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExceptionMapper\ExceptionMapper.csproj" />
     <ProjectReference Include="..\ImageClassification.Core\ImageClassification.Core.csproj" />
     <ProjectReference Include="..\ImageClassification.Shared\ImageClassification.Shared.csproj" />
+    <ProjectReference Include="..\Services\ExceptionMapper\ExceptionMapper.csproj" />
   </ItemGroup>
 
   <ItemGroup>
