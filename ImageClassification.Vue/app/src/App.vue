@@ -1,15 +1,14 @@
 <template>
   <v-app>
     <TopBar />
-    <v-main>
-      <router-view></router-view>
-    </v-main>
+    <Main />
     <BottomBar />
   </v-app>
 </template>
 
 <script>
 import TopBar from '@/components/layouts/TopBar'
+import Main from '@/components/layouts/Main'
 import BottomBar from '@/components/layouts/BottomBar'
 
 export default {
@@ -17,9 +16,16 @@ export default {
 
   components: {
     TopBar,
+    Main,
     BottomBar
   },
 
   data: () => ({})
 }
 </script>
+
+<style scoped>
+html{
+  overflow-y: auto;
+}
+</style>
