@@ -1,18 +1,19 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center"></div>
-    </v-app-bar>
-
+    <TopBar />
     <v-main> </v-main>
   </v-app>
 </template>
 
 <script>
+import TopBar from '@/components/layouts/TopBar'
+
 export default {
   name: 'App',
 
-  components: {},
+  components: {
+    TopBar
+  },
 
   data: () => ({})
 }
