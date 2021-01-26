@@ -17,6 +17,7 @@ export default {
   },
   methods: {
     openFolder () {
+      this.$router.push({ name: 'classificationList', params: { name: this.folder.name } })
       this.$emit('opened', this.folder)
     }
   }

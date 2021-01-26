@@ -1,11 +1,20 @@
 <template>
   <v-main>
-    <vue-page-transition name="fade">
-      <router-view class="px-7 py-5" />
-    </vue-page-transition>
+    <div class="px-5 py-3">
+      <Breadcrumbs />
+      <v-divider class="mb-5"></v-divider>
+      <vue-page-transition name="fade">
+        <router-view />
+      </vue-page-transition>
+    </div>
   </v-main>
 </template>
 
 <script>
-export default {}
+import Breadcrumbs from '@/components/helpers/Breadcrumbs'
+export default {
+  components: {
+    Breadcrumbs
+  }
+}
 </script>
