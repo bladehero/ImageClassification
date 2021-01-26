@@ -20,6 +20,8 @@ namespace ImageClassification.API
 {
     public class Startup
     {
+        public const string DefaultCorsPolicy = "DefaultCorsPolicy";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -48,7 +50,15 @@ namespace ImageClassification.API
 
             services.AddCustomServices();
 
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(DefaultCorsPolicy,
+                    builder => builder
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .SetIsOriginAllowed((host) => true)
+                        .AllowAnyHeader());
+            });
 
             #region Controllers
             services.AddControllers()
@@ -85,6 +95,7 @@ namespace ImageClassification.API
             {
                 app.UseExceptionHandler("/error");
             }
+            app.UseCors(DefaultCorsPolicy);
 
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ImageClassification.API v1"));
