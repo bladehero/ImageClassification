@@ -29,7 +29,7 @@ namespace ImageClassification.API.Controllers
         /// </remarks>
         /// <returns>Stream result as <see cref="FileStreamResult">FileStream</see>.</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(FileStreamResult), 200)]
+        [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Get(string keyword, int index, ImageParsingStrategy source = ImageParsingStrategy.DefaultImageParsing)

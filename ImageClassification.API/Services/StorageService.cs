@@ -50,6 +50,69 @@ namespace ImageClassification.API.Services
                 FileCount = Directory.GetFiles(x, "*.*", SearchOption.AllDirectories).Length
             });
         }
+
+        public void CreateFolder(string folder)
+        {
+            var path = Path.Join(_hostingEnvironment.ContentRootPath, _storageOptions.StoragePath);
+            if (!Directory.Exists(path))
+            {
+                throw new DirectoryNotFoundException("Storage directory not found!");
+            }
+
+            var folderPath = Path.Join(path, folder);
+            if (Directory.Exists(folderPath))
+            {
+                throw new IOException($"Directory `{folder}` already exists");
+            }
+
+            Directory.CreateDirectory(folderPath);
+        }
+
+        public void MoveFolder(string folder, string destination)
+        {
+            var path = Path.Join(_hostingEnvironment.ContentRootPath, _storageOptions.StoragePath);
+            if (!Directory.Exists(path))
+            {
+                throw new DirectoryNotFoundException("Storage directory not found!");
+            }
+
+            var folderPath = Path.Join(path, folder);
+            if (!Directory.Exists(folderPath))
+            {
+                throw new DirectoryNotFoundException($"Directory `{folder}` not found");
+            }
+
+            var destinationPath = Path.Join(path, destination);
+            if (Directory.Exists(destinationPath))
+            {
+                throw new IOException($"Directory `{folder}` cannot be moved to `{destination}`, because it already exists");
+            }
+
+            Directory.Move(folderPath, destinationPath);
+        }
+
+        public void DeleteFolder(string folder, bool deleteContent = true)
+        {
+            var path = Path.Join(_hostingEnvironment.ContentRootPath, _storageOptions.StoragePath);
+            if (!Directory.Exists(path))
+            {
+                throw new DirectoryNotFoundException("Storage directory not found!");
+            }
+
+            var folderPath = Path.Join(path, folder);
+            if (Directory.Exists(folderPath))
+            {
+                throw new DirectoryNotFoundException($"Directory `{folder}` not found");
+            }
+
+            if (!deleteContent && Directory.EnumerateFileSystemEntries(folderPath).Any())
+            {
+                throw new IOException($"Directory `{folder}` contains other entries");
+            }
+
+            Directory.Delete(folderPath, true);
+        }
+
         public IEnumerable<StorageFolderClassificationVM> GetStorageFolderClassifications(string folder)
         {
             var path = Path.Join(_hostingEnvironment.ContentRootPath, _storageOptions.StoragePath);

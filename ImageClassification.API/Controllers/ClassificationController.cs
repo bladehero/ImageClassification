@@ -45,7 +45,7 @@ namespace ImageClassification.API.Controllers
         /// <param name="classifier">Name of classifier.</param>
         /// <returns>Collection of possible classifications.</returns>
         [HttpGet("{classifier:ClassifierName}")]
-        [ProducesResponseType(typeof(IEnumerable<string>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
@@ -62,7 +62,7 @@ namespace ImageClassification.API.Controllers
         /// <param name="image">Image file.</param>
         /// <returns>String as name classification.</returns>
         [HttpPost("{classifier:ClassifierName}")]
-        [ProducesResponseType(typeof(ClassificationPredictionVM), 200)]
+        [ProducesResponseType(typeof(ClassificationPredictionVM), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]

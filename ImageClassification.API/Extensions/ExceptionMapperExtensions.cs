@@ -15,30 +15,42 @@ namespace ImageClassification.API.Extensions
             services.ConfigureExceptionMapper(builder =>
             {
                 #region 400
-                builder.Configure((EmptyFileException ex) =>
-                    new ErrorData(StatusCodes.Status400BadRequest, ex.Message));
+                {
+                    var _400 = StatusCodes.Status400BadRequest;
+                    builder.Configure((EmptyFileException ex) =>
+                        new ErrorData(_400, ex.Message));
 
-                builder.Configure((ArgumentException ex) =>
-                    new ErrorData(StatusCodes.Status400BadRequest, ex.Message, new { Argument = ex.ParamName }));
+                    builder.Configure((ArgumentException ex) =>
+                        new ErrorData(_400, ex.Message, new { Argument = ex.ParamName }));
 
-                builder.Configure((ArgumentNullException ex) =>
-                    new ErrorData(StatusCodes.Status400BadRequest, ex.Message, new { Argument = ex.ParamName }));
+                    builder.Configure((ArgumentNullException ex) =>
+                        new ErrorData(_400, ex.Message, new { Argument = ex.ParamName }));
+
+                    builder.Configure((IOException ex) =>
+                        new ErrorData(_400, ex.Message));
+                }
                 #endregion
 
                 #region 404
-                builder.Configure((NotFoundClassifierException ex) =>
-                    new ErrorData(StatusCodes.Status404NotFound, ex.Message));
+                {
+                    var _404 = StatusCodes.Status404NotFound;
+                    builder.Configure((NotFoundClassifierException ex) =>
+                        new ErrorData(_404, ex.Message));
 
-                builder.Configure((DirectoryNotFoundException ex) =>
-                    new ErrorData(StatusCodes.Status404NotFound, ex.Message));
+                    builder.Configure((DirectoryNotFoundException ex) =>
+                        new ErrorData(_404, ex.Message));
 
-                builder.Configure((FileNotFoundException ex) =>
-                    new ErrorData(StatusCodes.Status404NotFound, ex.Message, new { ex.FileName }));
+                    builder.Configure((FileNotFoundException ex) =>
+                        new ErrorData(_404, ex.Message, new { ex.FileName }));
+                }
                 #endregion
 
                 #region 415
-                builder.Configure((ImageFormatException ex) =>
-                    new ErrorData(StatusCodes.Status415UnsupportedMediaType, ex.Message, new { ex.CorrectFormats }));
+                {
+                    var _415 = StatusCodes.Status415UnsupportedMediaType;
+                    builder.Configure((ImageFormatException ex) =>
+                        new ErrorData(_415, ex.Message, new { ex.CorrectFormats }));
+                }
                 #endregion
 
             });

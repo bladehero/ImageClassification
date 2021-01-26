@@ -69,11 +69,27 @@
             <summary>
             Shows information related to the image with indexing.
             </summary>
-            <param name="folder"></param>
-            <param name="classification"></param>
-            <returns></returns>
+            <param name="folder">Folder to search to.</param>
+            <param name="classification">Image classification.</param>
+            <returns>Information of stored image.</returns>
         </member>
-        <member name="M:ImageClassification.API.Controllers.StorageController.Post(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String)">
+        <member name="M:ImageClassification.API.Controllers.StorageController.Get(System.String,System.String,System.Int32)">
+            <summary>
+            Downloads specified by parameters image.
+            </summary>
+            <param name="folder">Folder of storing.</param>
+            <param name="classification">Image classification.</param>
+            <param name="index">Index of image.</param>
+            <returns>Stream for specified image, if it exists.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.StorageController.Post(System.String)">
+            <summary>
+            Creates folder with a name.
+            </summary>
+            <param name="folder">Folder name.</param>
+            <returns>Success if folder is created.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.StorageController.Post(System.String,Microsoft.AspNetCore.Http.IFormFile,System.String)">
             <summary>
             Uploads image to folder for future trainnings.
             </summary>
@@ -81,6 +97,31 @@
             <param name="folder">Folder where file should be uploaded. Folder should be a single section.</param>
             <param name="classification">Classification label.</param>
             <returns>Returns file name if everything went well.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.StorageController.Put(System.String,System.String)">
+            <summary>
+            Renames folder with a new name.
+            </summary>
+            <param name="folder">Current folder name.</param>
+            <param name="newName">New folder name.</param>
+            <returns>Success if folder is renamed.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.StorageController.Delete(System.String,System.Boolean)">
+            <summary>
+            Removes folder from a list.
+            </summary>
+            <param name="folder">Folder where file should be uploaded. Folder should be a single section.</param>
+            <param name="deleteContent">If true - recursively removes content from folder, otherwise only removes folder if empty.</param>
+            <returns>Success if image is removed.</returns>
+        </member>
+        <member name="M:ImageClassification.API.Controllers.StorageController.Delete(System.String,System.String,System.Int32)">
+            <summary>
+            Removes image from classification.
+            </summary>
+            <param name="folder">Folder where file should be uploaded. Folder should be a single section.</param>
+            <param name="classification">Image classification.</param>
+            <param name="index">Index of image.</param>
+            <returns>Success if image is removed.</returns>
         </member>
         <member name="T:ImageClassification.API.Delegates.ImageParsingResolver">
             <summary>
