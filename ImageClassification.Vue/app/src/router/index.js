@@ -7,17 +7,17 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Home',
+    name: 'storage',
     component: Home
   },
   {
-    path: '/',
-    name: 'Classification',
+    path: '/classification',
+    name: 'classification',
     component: () => import('@/views/Classification')
   },
   {
-    path: '/',
-    name: 'Classifiers',
+    path: '/classifiers',
+    name: 'classifiers',
     component: () => import('@/views/Classifiers')
   }
 ]
