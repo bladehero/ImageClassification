@@ -24,8 +24,8 @@ export default {
 }
 </script>
 
-<style scoped>
-html{
+<style>
+html {
   overflow-y: auto;
 }
 </style>

@@ -1,14 +1,16 @@
 <template>
   <div>
-    <h2>Home</h2>
+    <Storage />
   </div>
 </template>
 
 <script>
+import Storage from '@/components/storage/Storage'
 
 export default {
   name: 'Home',
   components: {
+    Storage
   }
 }
 </script>
