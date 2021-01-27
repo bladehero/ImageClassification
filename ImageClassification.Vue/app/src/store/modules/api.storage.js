@@ -19,17 +19,11 @@ const storage = {
   },
   actions: {
     async fetchStorage ({ commit }) {
-      commit('setLoading', true)
-
       const response = await fetch(STORAGE_URL)
       const folders = await response.json()
       commit('updateFolders', folders)
-
-      commit('setLoading', false)
     },
     async fetchStorageFolder ({ dispatch, commit, getters }, folder) {
-      commit('setLoading', true)
-
       if (!getters.folderByName(folder)) {
         await dispatch('fetchStorage')
       }
@@ -37,8 +31,6 @@ const storage = {
       const response = await fetch(`${STORAGE_URL}/${folder}`)
       const classifications = await response.json()
       commit('updateFolderClassifications', { folder, classifications })
-
-      commit('setLoading', false)
     }
   },
   getters: {

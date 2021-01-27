@@ -12,7 +12,7 @@
 
 <script>
 import Classification from '@/components/storage/classifications/Classification'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -31,10 +31,13 @@ export default {
     ...mapGetters(['allFolders', 'classificationsByFolder'])
   },
   methods: {
-    ...mapActions(['fetchStorageFolder'])
+    ...mapActions(['fetchStorageFolder']),
+    ...mapMutations(['setLoading'])
   },
   async created () {
+    this.setLoading(true)
     await this.fetchStorageFolder(this.name)
+    this.setLoading(false)
   }
 }
 </script>
