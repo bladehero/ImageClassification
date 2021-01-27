@@ -7,10 +7,21 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   strict: true,
   state: {
+    isLoading: false
+  },
+  getters: {
+    getIsLoading (state) {
+      return state.isLoading
+    }
   },
   mutations: {
-  },
-  actions: {
+    setLoading (state, status) {
+      if (status === undefined) {
+        return
+      }
+
+      state.isLoading = status
+    }
   },
   modules: {
     apiStorage
