@@ -1,14 +1,21 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Home from '@/views/Home.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
+    alias: ['/storage'],
     name: 'storage',
     component: Home
+  },
+  {
+    path: '/storage/:name',
+    name: 'classificationList',
+    component: () => import('@/views/ClassificationList'),
+    props: true
   },
   {
     path: '/classification',
