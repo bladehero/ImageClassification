@@ -4,7 +4,7 @@
       <v-icon>mdi-chevron-right</v-icon>
     </template>
     <template v-slot:item="{ item }">
-      <v-breadcrumbs-item :href="item.to" :disabled="isLastCrumb(item)">
+      <v-breadcrumbs-item :href="item.to" :disabled="isLastCrumb(item)" @click.prevent="goto(item)">
         <span class="overline">{{ item.text }}</span>
       </v-breadcrumbs-item>
     </template>
@@ -18,6 +18,9 @@ export default {
       const _crumbs = this.crumbs
       const last = _crumbs[_crumbs.length - 1]
       return crumb === last
+    },
+    goto (crumb) {
+      this.$router.push(crumb.to)
     }
   },
   computed: {
