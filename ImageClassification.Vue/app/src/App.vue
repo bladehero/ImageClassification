@@ -64,12 +64,6 @@ main {
 /* Handle */
 ::-webkit-scrollbar-thumb {
   border-radius: 3px;
-  background: var(--accent-color);
-}
-
-/* Hover */
-::-webkit-scrollbar-thumb:hover {
-  border-radius: 3px;
   background: var(--primary-color);
 }
 </style>
