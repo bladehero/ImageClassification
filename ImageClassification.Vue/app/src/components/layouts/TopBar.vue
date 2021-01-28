@@ -1,22 +1,31 @@
 <template>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-          <img id="logo" src="@/assets/logo.svg" alt="Logo"/>
-          <span class="font-weight-light headline">Image Classification</span>
-      </div>
-    </v-app-bar>
+  <v-app-bar app color="primary" dark>
+    <div class="d-flex align-center">
+      <img id="logo" src="@/assets/logo.svg" alt="Logo" />
+      <span class="font-weight-light headline">Image Classification</span>
+    </div>
+  </v-app-bar>
 </template>
 
 <script>
-export default {
+import { mapMutations } from 'vuex'
 
+export default {
+  methods: {
+    ...mapMutations(['setBarSettings'])
+  },
+
+  mounted () {
+    const topBarHeight = this.$el.clientHeight
+    this.setBarSettings({ topBarHeight })
+  }
 }
 </script>
 
 <style scoped>
 #logo {
-    width: 2rem !important;
-    height: 2rem !important;
-    margin-right: 0.5rem;
+  width: 2rem !important;
+  height: 2rem !important;
+  margin-right: 0.5rem;
 }
 </style>
