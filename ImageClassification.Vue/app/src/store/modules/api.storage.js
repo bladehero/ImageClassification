@@ -15,6 +15,10 @@ const storage = {
         Object.assign(item, { classifications: classifications })
         state.folders = folders
       }
+    },
+    removeFolder (state, { folder }) {
+      const folders = state.folders.filter(x => x.name !== folder)
+      state.folders = folders
     }
   },
   actions: {
@@ -31,6 +35,15 @@ const storage = {
       const response = await fetch(`${STORAGE_URL}/${folder}`)
       const classifications = await response.json()
       commit('updateFolderClassifications', { folder, classifications })
+    },
+    async deleteStorageFolder ({ dispatch, commit, getters }, folder) {
+      const response = await fetch(`${STORAGE_URL}/${folder}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        commit('removeFolder', { folder })
+      }
     }
   },
   getters: {
