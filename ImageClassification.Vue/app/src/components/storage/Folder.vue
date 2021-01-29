@@ -100,10 +100,29 @@ export default {
 
       if (type === 'delete') {
         this.openModal({
-          text: `Do you really want to delete <br/>'<b>${folder.name}</b>'?`,
-          confirmAction: () => vm.deleteStorageFolder(folder.name),
-          confirmText: 'Delete'
+          type: 'actionModal',
+          opts: {
+            text: `Do you really want to delete <br/>'<b>${folder.name}</b>'?`,
+            confirmAction: async () => {
+              const success = await vm.deleteStorageFolder(folder.name)
+              if (success) {
+                this.openModal({
+                  type: 'alertModal',
+                  opts: {
+                    text: `Successfully deleted '<b>${folder.name}</b>'!`,
+                    icon: 'checkbox-marked-circle',
+                    iconColor: 'success'
+                  }
+                })
+              }
+            },
+            confirmText: 'Delete'
+          }
         })
+      }
+
+      if (type === 'rename') {
+
       }
     }
   },

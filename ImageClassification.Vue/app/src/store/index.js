@@ -8,9 +8,15 @@ const store = new Vuex.Store({
   strict: true,
   state: {
     isLoading: false,
-    modal: {
-      isModalOpen: false,
-      options: {}
+    modals: {
+      actionModal: {
+        isModalOpen: false,
+        options: {}
+      },
+      alertModal: {
+        isModalOpen: false,
+        options: {}
+      }
     },
     internal: {
       barSettings: {
@@ -28,12 +34,6 @@ const store = new Vuex.Store({
     },
     getTheme (state) {
       return state.internal.themes
-    },
-    isModalOpen (state) {
-      return state.modal.isModalOpen
-    },
-    modalOptions (state) {
-      return state.modal.options
     }
   },
   mutations: {
@@ -51,21 +51,38 @@ const store = new Vuex.Store({
         state.internal.barSettings.bottomBarHeight = bottomBarHeight
       }
     },
-    setModal (state, opts) {
-      state.modal.isModalOpen = true
-      state.modal.options = opts
+    setModal (state, { type, opts }) {
+      let modal = null
+      for (const key in state.modals) {
+        if (Object.hasOwnProperty.call(state.modals, key) && key === type) {
+          modal = state.modals[key]
+        }
+      }
+
+      if (modal) {
+        modal.isModalOpen = true
+        modal.options = opts
+      }
     },
-    removeModal (state) {
-      state.modal.isModalOpen = false
-      state.modal.options = {}
+    removeModal (state, type) {
+      let modal = null
+      for (const key in state.modals) {
+        if (Object.hasOwnProperty.call(state.modals, key) && key === type) {
+          modal = state.modals[key]
+        }
+      }
+
+      if (modal) {
+        modal.isModalOpen = false
+      }
     }
   },
   actions: {
-    openModal ({ commit }, opts) {
-      commit('setModal', opts)
+    openModal ({ commit }, { type, opts }) {
+      commit('setModal', { type, opts })
     },
-    closeModal ({ commit }) {
-      commit('removeModal')
+    closeModal ({ commit }, type) {
+      commit('removeModal', type)
     }
   },
   modules: {

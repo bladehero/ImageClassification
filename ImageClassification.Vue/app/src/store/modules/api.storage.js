@@ -36,14 +36,16 @@ const storage = {
       const classifications = await response.json()
       commit('updateFolderClassifications', { folder, classifications })
     },
-    async deleteStorageFolder ({ dispatch, commit, getters }, folder) {
+    async deleteStorageFolder ({ commit }, folder) {
       const response = await fetch(`${STORAGE_URL}/${folder}`, {
         method: 'DELETE'
       })
 
       if (response.ok) {
         commit('removeFolder', { folder })
+        return true
       }
+      return false
     }
   },
   getters: {

@@ -23,13 +23,13 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   methods: {
     ...mapActions(['closeModal']),
     execute (func) {
-      this.closeModal()
+      this.closeModal('actionModal')
 
       if (typeof func === 'function') {
         func()
@@ -37,7 +37,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['isModalOpen', 'modalOptions'])
+    ...mapState({
+      isModalOpen: state => state.modals.actionModal.isModalOpen,
+      modalOptions: state => state.modals.actionModal.options
+    })
   }
 }
 </script>
