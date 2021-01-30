@@ -100,7 +100,7 @@ namespace ImageClassification.API.Services
             }
 
             var folderPath = Path.Join(path, folder);
-            if (Directory.Exists(folderPath))
+            if (!Directory.Exists(folderPath))
             {
                 throw new DirectoryNotFoundException($"Directory `{folder}` not found");
             }
