@@ -4,7 +4,7 @@
       <Loader />
       <Breadcrumbs />
       <v-divider class="mb-5"></v-divider>
-      <vue-page-transition>
+      <vue-page-transition name="fade">
         <router-view
           class="scrollable"
           :style="{ height: `${viewHeight}vh` }"
