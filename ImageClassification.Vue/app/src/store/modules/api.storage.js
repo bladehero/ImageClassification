@@ -19,6 +19,15 @@ const storage = {
     removeFolder (state, { folder }) {
       const folders = state.folders.filter(x => x.name !== folder)
       state.folders = folders
+    },
+    updateFolderName (state, { folder, newName }) {
+      const folders = state.folders.map(x => {
+        if (folder === x) {
+          folder.name = newName
+        }
+        return x
+      }).sort((a, b) => a.name.localeCompare(b.name))
+      state.folders = folders
     }
   },
   actions: {
@@ -43,6 +52,17 @@ const storage = {
 
       if (response.ok) {
         commit('removeFolder', { folder })
+        return true
+      }
+      return false
+    },
+    async changeFolderName ({ commit }, { folder, newName }) {
+      const response = await fetch(`${STORAGE_URL}/${folder.name}/${newName}`, {
+        method: 'PUT'
+      })
+
+      if (response.ok) {
+        commit('updateFolderName', { folder, newName })
         return true
       }
       return false

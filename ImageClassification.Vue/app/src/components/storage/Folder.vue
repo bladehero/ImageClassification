@@ -5,7 +5,19 @@
         <v-icon :color="hover ? 'primary' : 'accent'" large>
           mdi-folder
         </v-icon>
-        <span class="ml-2 ml-sm-0 d-sm-block font-weight-light">
+        <v-text-field
+          ref="folderChangeNameField"
+          class="mt-0 pt-0 d-inline-block d-sm-block shrink"
+          v-if="changeMode"
+          label="Type folder name..."
+          single-line
+          :value="folder.name"
+          append-icon="mdi-check"
+          @click:append="changeName"
+          @keypress="changeNameKeyPress"
+          @blur="changeMode = false"
+        />
+        <span v-else class="ml-2 ml-sm-0 d-sm-block font-weight-light">
           {{ folder.name }}
         </span>
       </div>
@@ -39,6 +51,7 @@ import { mapActions } from 'vuex'
 export default {
   data () {
     return {
+      changeMode: false,
       showMenu: false,
       x: 0,
       y: 0,
@@ -70,8 +83,11 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['deleteStorageFolder', 'openModal']),
+    ...mapActions(['deleteStorageFolder', 'openModal', 'changeFolderName']),
     openFolder () {
+      if (this.changeMode) {
+        return
+      }
       this.$router.push({
         name: 'classificationList',
         params: { name: this.folder.name }
@@ -122,7 +138,24 @@ export default {
       }
 
       if (type === 'rename') {
-
+        this.changeMode = true
+        this.$nextTick(() => {
+          const field = this.$refs.folderChangeNameField.$el.querySelector(
+            'input'
+          )
+          field.focus()
+          field.setSelectionRange(0, field.value.length)
+        })
+      }
+    },
+    changeName () {
+      this.changeMode = false
+      const field = this.$refs.folderChangeNameField.$el.querySelector('input')
+      this.changeFolderName({ folder: this.folder, newName: field.value })
+    },
+    changeNameKeyPress (e) {
+      if (e.keyCode === 13) {
+        this.changeName()
       }
     }
   },
@@ -133,4 +166,7 @@ export default {
 </script>
 
 <style>
+.v-text-field input {
+  text-align: center;
+}
 </style>
