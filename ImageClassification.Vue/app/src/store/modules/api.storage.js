@@ -26,8 +26,25 @@ const storage = {
           folder.name = newName
         }
         return x
-      }).sort((a, b) => a.name.localeCompare(b.name))
+      })
       state.folders = folders
+    },
+    createNewFolder (state) {
+      const folders = state.folders.map(x => x).concat({ ...{ name: '', fileCount: 0, needSave: true } })
+      state.folders = folders
+    },
+    saveFolder (state, { folder }) {
+      const folders = state.folders.map(x => {
+        if (x.needSave) {
+          x.name = folder
+          x.needSave = false
+        }
+        return x
+      })
+      state.folders = folders
+    },
+    sortFolders (state) {
+      state.folders = state.folders.map(x => x).sort((a, b) => a.name.localeCompare(b.name))
     }
   },
   actions: {
@@ -63,6 +80,19 @@ const storage = {
 
       if (response.ok) {
         commit('updateFolderName', { folder, newName })
+        commit('sortFolders')
+        return true
+      }
+      return false
+    },
+    async createFolder ({ commit }, { folder }) {
+      const response = await fetch(`${STORAGE_URL}/${folder}`, {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        commit('saveFolder', { folder })
+        commit('sortFolders')
         return true
       }
       return false
@@ -77,6 +107,9 @@ const storage = {
     },
     classificationsByFolder: state => folder => {
       return state.folders.find(x => x.name === folder)?.classifications
+    },
+    hasNewFolder (state) {
+      return state.folders.some(x => !!x.needSave)
     }
   }
 }

@@ -15,7 +15,7 @@
           append-icon="mdi-check"
           @click:append="changeName"
           @keypress="changeNameKeyPress"
-          @blur="changeMode = false"
+          @blur="changeNameBlur"
         />
         <span v-else class="ml-2 ml-sm-0 d-sm-block font-weight-light">
           {{ folder.name }}
@@ -46,7 +46,7 @@
 
 <script>
 import longpress from '@/plugins/vue-long-press'
-import { mapActions } from 'vuex'
+import { mapActions, mapMutations } from 'vuex'
 
 export default {
   data () {
@@ -83,8 +83,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['deleteStorageFolder', 'openModal', 'changeFolderName']),
+    ...mapMutations(['removeFolder']),
+    ...mapActions(['deleteStorageFolder', 'openModal', 'changeFolderName', 'createFolder']),
     openFolder () {
+      if (this.folder.needSave) {
+        return
+      }
       if (this.changeMode) {
         return
       }
@@ -95,6 +99,9 @@ export default {
       this.$emit('opened', this.folder)
     },
     show (e) {
+      if (this.folder.needSave) {
+        return
+      }
       if (this.showMenu) {
         return
       }
@@ -108,6 +115,9 @@ export default {
       })
     },
     action (folder, type) {
+      if (this.folder.needSave) {
+        return
+      }
       if (!folder || !type) {
         return
       }
@@ -138,25 +148,44 @@ export default {
       }
 
       if (type === 'rename') {
-        this.changeMode = true
-        this.$nextTick(() => {
-          const field = this.$refs.folderChangeNameField.$el.querySelector(
-            'input'
-          )
-          field.focus()
-          field.setSelectionRange(0, field.value.length)
-        })
+        this.setFocus()
       }
     },
     changeName () {
       this.changeMode = false
       const field = this.$refs.folderChangeNameField.$el.querySelector('input')
-      this.changeFolderName({ folder: this.folder, newName: field.value })
+      if (this.folder.needSave) {
+        this.createFolder({ folder: field.value })
+      } else {
+        this.changeFolderName({ folder: this.folder, newName: field.value })
+      }
     },
     changeNameKeyPress (e) {
       if (e.keyCode === 13) {
         this.changeName()
       }
+    },
+    setFocus () {
+      this.changeMode = true
+      this.$nextTick(() => {
+        const field = this.$refs.folderChangeNameField.$el.querySelector(
+          'input'
+        )
+        field.focus()
+        field.setSelectionRange(0, field.value.length)
+      })
+    },
+    changeNameBlur () {
+      if (this.folder.needSave) {
+        this.removeFolder(this.folder)
+      }
+
+      this.changeMode = false
+    }
+  },
+  mounted () {
+    if (this.folder.needSave) {
+      this.setFocus()
     }
   },
   directives: {
