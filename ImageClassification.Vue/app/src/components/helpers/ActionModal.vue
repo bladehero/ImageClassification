@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center">
+  <v-row justify="center" v-if="isModalOpen">
     <v-dialog v-model="isModalOpen" persistent max-width="300">
       <v-card>
         <v-card-title class="headline"> {{ modalOptions.title || 'Confirm action' }} </v-card-title>

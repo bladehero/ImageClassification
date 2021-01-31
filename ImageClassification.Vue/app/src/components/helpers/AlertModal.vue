@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center">
+  <v-row justify="center" v-if="isModalOpen">
     <v-dialog :value="isModalOpen" max-width="275">
       <v-card>
         <v-card-title class="headline">
