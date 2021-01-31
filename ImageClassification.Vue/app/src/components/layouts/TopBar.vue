@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import sizeProvider from '@/utils/size-provider'
 import { mapMutations } from 'vuex'
 
 export default {
@@ -37,7 +38,7 @@ export default {
   },
 
   mounted () {
-    const topBarHeight = this.$el.clientHeight
+    const topBarHeight = sizeProvider.getFullHeight(this.$el)
     this.setBarSettings({ topBarHeight })
   }
 }

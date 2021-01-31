@@ -19,6 +19,7 @@
 
 <script>
 import { mapMutations } from 'vuex'
+import sizeProvider from '@/utils/size-provider'
 
 export default {
   data: () => ({ value: 'storage' }),
@@ -35,7 +36,7 @@ export default {
   },
 
   mounted () {
-    const bottomBarHeight = this.$el.clientHeight
+    const bottomBarHeight = sizeProvider.getFullHeight(this.$el)
     this.setBarSettings({ bottomBarHeight })
   }
 }

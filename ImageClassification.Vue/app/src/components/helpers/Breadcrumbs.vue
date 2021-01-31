@@ -12,8 +12,12 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
+import sizeProvider from '@/utils/size-provider'
+
 export default {
   methods: {
+    ...mapMutations(['setBarSettings']),
     isLastCrumb (crumb) {
       const _crumbs = this.crumbs
       const last = _crumbs[_crumbs.length - 1]
@@ -40,6 +44,11 @@ export default {
       }, [])
       return breadcrumbs
     }
+  },
+
+  mounted () {
+    const breadCrumbsHeight = sizeProvider.getFullHeight(this.$el)
+    this.setBarSettings({ breadCrumbsHeight })
   }
 }
 </script>

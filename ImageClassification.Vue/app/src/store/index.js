@@ -20,6 +20,9 @@ const store = new Vuex.Store({
     },
     internal: {
       barSettings: {
+        mainHeight: 24,
+        dividerHeight: 20,
+        breadCrumbsHeight: 32,
         topBarHeight: 56,
         bottomBarHeight: 56
       }
@@ -34,6 +37,16 @@ const store = new Vuex.Store({
     },
     getTheme (state) {
       return state.internal.themes
+    },
+    getFullBarHeight (state) {
+      let sum = 0
+      for (const key in state.internal.barSettings) {
+        if (Object.hasOwnProperty.call(state.internal.barSettings, key)) {
+          const element = state.internal.barSettings[key]
+          sum += element
+        }
+      }
+      return sum
     }
   },
   mutations: {
@@ -43,13 +56,14 @@ const store = new Vuex.Store({
       }
       state.isLoading = status
     },
-    setBarSettings (state, { topBarHeight, bottomBarHeight }) {
-      if (topBarHeight) {
-        state.internal.barSettings.topBarHeight = topBarHeight
+    setBarSettings (state, barSettings) {
+      for (const key in state.internal.barSettings) {
+        if (Object.hasOwnProperty.call(state.internal.barSettings, key) &&
+         Object.hasOwnProperty.call(barSettings, key)) {
+          state.internal.barSettings[key] = barSettings[key]
+        }
       }
-      if (bottomBarHeight) {
-        state.internal.barSettings.bottomBarHeight = bottomBarHeight
-      }
+      state.internal.barSettings = { ...state.internal.barSettings }
     },
     setModal (state, { type, opts }) {
       let modal = null

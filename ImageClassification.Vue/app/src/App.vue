@@ -3,8 +3,6 @@
     <TopBar />
     <Main />
     <BottomBar />
-    <AlertModal />
-    <ActionModal />
   </v-app>
 </template>
 
@@ -12,8 +10,6 @@
 import TopBar from '@/components/layouts/TopBar'
 import Main from '@/components/layouts/Main'
 import BottomBar from '@/components/layouts/BottomBar'
-import AlertModal from '@/components/helpers/AlertModal'
-import ActionModal from '@/components/helpers/ActionModal'
 
 export default {
   name: 'App',
@@ -21,9 +17,7 @@ export default {
   components: {
     TopBar,
     Main,
-    BottomBar,
-    AlertModal,
-    ActionModal
+    BottomBar
   },
 
   computed: {

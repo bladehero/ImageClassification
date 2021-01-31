@@ -1,6 +1,6 @@
 <template>
   <v-main class="vld-parent">
-    <div class="px-5 py-3">
+    <div class="px-5 py-3" id="main-framer">
       <Loader />
       <Breadcrumbs />
       <v-divider class="mb-5"></v-divider>
@@ -11,33 +11,63 @@
         ></router-view>
       </vue-page-transition>
     </div>
+    <AlertModal />
+    <ActionModal />
   </v-main>
 </template>
 
 <script>
 import Breadcrumbs from '@/components/helpers/Breadcrumbs'
 import Loader from '@/components/helpers/Loader'
-import { mapGetters } from 'vuex'
+import AlertModal from '@/components/helpers/AlertModal'
+import ActionModal from '@/components/helpers/ActionModal'
+import { mapGetters, mapMutations } from 'vuex'
+import sizeProvider from '@/utils/size-provider'
 
 export default {
+  components: {
+    Breadcrumbs,
+    Loader,
+    AlertModal,
+    ActionModal
+  },
+  methods: {
+    ...mapMutations(['setBarSettings']),
+    changeHeight () {
+      if (!this._isMounted) {
+        return
+      }
+      const framer = this.$el.querySelector('#main-framer')
+      const divider = framer.querySelector('hr.v-divider')
+
+      const mainHeight = sizeProvider.getFullHeight(framer) - framer.clientHeight
+      const dividerHeight = sizeProvider.getFullHeight(divider)
+
+      this.setBarSettings({
+        mainHeight,
+        dividerHeight
+      })
+    }
+  },
   computed: {
-    ...mapGetters(['getBarSettings']),
+    ...mapGetters(['getBarSettings', 'getFullBarHeight']),
     viewHeight () {
-      const { topBarHeight, bottomBarHeight } = this.getBarSettings
+      const framingHeight = this.getFullBarHeight
+      if (isNaN(framingHeight)) {
+        return
+      }
+      const windowHeight = window.innerHeight
 
-      const framingHeight = topBarHeight + bottomBarHeight
-      const windowHeight = window.screen.height
-
-      const bottomPadding = Math.ceil((windowHeight - framingHeight) * 0.01)
+      const bottomPadding = 7
 
       const mainHeight = windowHeight - framingHeight - bottomPadding
 
-      return Math.floor((mainHeight / windowHeight) * 90)
+      return Math.floor((mainHeight / windowHeight) * 100)
     }
   },
-  components: {
-    Breadcrumbs,
-    Loader
+  mounted () {
+    const vm = this
+    window.addEventListener('resize', () => vm.changeHeight())
   }
 }
 </script>
