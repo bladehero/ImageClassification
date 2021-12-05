@@ -1,17 +1,17 @@
 <template>
   <div>
     <v-hover v-slot="{ hover }">
-    <div @contextmenu="show" v-longpress="show">
-      <v-icon :color="hover ? 'primary' : 'accent'" large>
-        mdi-tag-text-outline
-      </v-icon>
-      <div class="ml-2 ml-sm-0 d-sm-block font-weight-light">
-        {{ value.classification }}
-        <br />
-        <span class="caption">{{ value.fileCount }}pcs.</span>
+      <div @contextmenu="show" v-longpress="show">
+        <v-icon :color="hover ? 'primary' : 'accent'" large>
+          mdi-tag-text-outline
+        </v-icon>
+        <div class="ml-2 ml-sm-0 d-sm-block font-weight-light">
+          {{ value.classification }}
+          <br/>
+          <span class="caption">{{ value.fileCount }}pcs.</span>
+        </div>
       </div>
-    </div>
-  </v-hover>
+    </v-hover>
     <v-menu
       v-model="showMenu"
       :position-x="x"

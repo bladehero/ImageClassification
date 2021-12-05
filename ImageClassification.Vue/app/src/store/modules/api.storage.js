@@ -1,12 +1,17 @@
 const STORAGE_URL = `${process.env.VUE_APP_API_URL}/storage`
+const CLASSIFIERS_URL = `${process.env.VUE_APP_API_URL}/classifiers`
 
 const storage = {
   state: {
-    folders: []
+    folders: [],
+    classifiers: []
   },
   mutations: {
     updateFolders (state, folders) {
       state.folders = folders
+    },
+    updateClassifiers (state, classifiers) {
+      state.classifiers = classifiers
     },
     updateFolderClassifications (state, { folder, classifications }) {
       const folders = state.folders.map(x => x)
@@ -56,6 +61,12 @@ const storage = {
       const response = await fetch(STORAGE_URL)
       const folders = await response.json()
       commit('updateFolders', folders)
+    },
+    async fetchClassifiers ({ commit }) {
+      debugger
+      const response = await fetch(CLASSIFIERS_URL)
+      const classifiers = await response.json()
+      commit('updateClassifiers', classifiers.map(x => ({ name: x })))
     },
     async fetchStorageFolder ({ dispatch, commit, getters }, folder) {
       if (!getters.folderByName(folder)) {
@@ -130,6 +141,9 @@ const storage = {
   getters: {
     allFolders (state) {
       return state.folders
+    },
+    allClassifiers (state) {
+      return state.classifiers
     },
     folderByName: state => name => {
       return state.folders.find(x => x.name === name)
