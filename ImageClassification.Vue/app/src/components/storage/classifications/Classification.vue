@@ -8,7 +8,7 @@
         <div class="ml-2 ml-sm-0 d-sm-block font-weight-light">
           {{ value.classification }}
           <br/>
-          <span class="caption">{{ value.fileCount }}pcs.</span>
+          <span class="caption">{{ value.fileCount }} pcs.</span>
         </div>
       </div>
     </v-hover>

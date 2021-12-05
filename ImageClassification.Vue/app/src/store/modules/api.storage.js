@@ -63,7 +63,6 @@ const storage = {
       commit('updateFolders', folders)
     },
     async fetchClassifiers ({ commit }) {
-      debugger
       const response = await fetch(CLASSIFIERS_URL)
       const classifiers = await response.json()
       commit('updateClassifiers', classifiers.map(x => ({ name: x })))
@@ -133,6 +132,13 @@ const storage = {
       const response = await fetch(`${STORAGE_URL}/upload/${folder}`, {
         method: 'POST',
         body: data
+      })
+
+      return response.ok
+    },
+    async prepareClassifier ({ commit }, { classifier, folder }) {
+      const response = await fetch(`${CLASSIFIERS_URL}/train/${classifier}?imageFolder=${folder}`, {
+        method: 'PATCH'
       })
 
       return response.ok
