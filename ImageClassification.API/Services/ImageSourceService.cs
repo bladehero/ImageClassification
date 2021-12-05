@@ -1,10 +1,8 @@
-﻿using ImageClassification.API.Configurations;
-using ImageClassification.API.Delegates;
+﻿using ImageClassification.API.Delegates;
 using ImageClassification.API.Enums;
 using ImageClassification.API.Interfaces;
 using ImageClassification.Core.Preparation.Interfaces;
 using ImageClassification.Core.Preparation.Models;
-using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 
 namespace ImageClassification.API.Services

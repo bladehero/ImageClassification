@@ -1,7 +1,6 @@
 ﻿using ImageClassification.API.Models;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ImageClassification.API.Interfaces
 {

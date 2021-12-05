@@ -101,6 +101,7 @@ namespace ImageClassification.API
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ImageClassification.API v1"));
 
             app.UseHttpsRedirection();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -113,6 +114,7 @@ namespace ImageClassification.API
                 endpoints.MapRazorPages();
                 endpoints.MapHub<TrainLogHub>("/trainLog");
             });
+
         }
     }
 }

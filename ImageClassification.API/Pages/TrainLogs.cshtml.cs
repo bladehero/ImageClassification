@@ -2,10 +2,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ImageClassification.API.Pages
 {
-    public class IndexModel : PageModel
+    public class TrainLogs : PageModel
     {
         public void OnGet()
         {
+            
         }
     }
 }
