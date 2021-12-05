@@ -1,7 +1,7 @@
 <template>
   <div class="mx-auto container">
     <div class="justify-center text-center">
-      <v-btn v-if="(hasTaken || !!image) && selectedClassifier" color="blue-grey lighten-2 mb-5">
+      <v-btn v-if="(hasTaken || !!image) && selectedClassifier" color="blue-grey lighten-2 mb-5" @click="recognize">
         <v-icon>
           mdi-image-filter-center-focus
         </v-icon>
@@ -78,6 +78,60 @@
         </v-card>
       </v-dialog>
     </div>
+    <v-dialog
+      transition="dialog-bottom-transition"
+      max-width="600"
+      v-model="resultDialog"
+    >
+      <template v-slot:default="dialog">
+        <v-card>
+          <v-toolbar class="text-h5" color="primary" dark>Results</v-toolbar>
+          <v-card-text>
+            <v-row class="pa-12 align-center">
+              <v-col cols="6">
+                Predicted Category:
+                <v-chip
+                  class="ma-1 body-2"
+                  color="primary"
+                  small
+                >
+                  {{ imageClassification.predictedLabel }}
+                </v-chip>
+              </v-col>
+              <v-col cols="6">
+                Probability:
+                <b> {{ percentage }}% </b>
+              </v-col>
+              <v-col cols="12">
+                <v-card elevation="8">
+                  <v-img :src="imageUrl"></v-img>
+                </v-card>
+              </v-col>
+              <v-col cols="12 pb-0">
+                Time spent:
+                <b> {{ imageClassification.predictionExecutionTime }} ms. </b>
+              </v-col>
+              <v-col cols="12">
+                All categories:
+                <v-chip
+                  v-for="classification in classifications" :key="classification"
+                  class="ma-1 body-2"
+                  color="gray"
+                  small
+                >
+                  {{ classification }}
+                </v-chip>
+              </v-col>
+            </v-row>
+          </v-card-text>
+          <v-card-actions class="justify-end">
+            <v-btn text @click="dialog.value = false"
+            >Close
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
   </div>
 </template>
 
@@ -88,16 +142,32 @@ export default {
   data () {
     return {
       image: null,
+      imageUrl: '',
       dialog: false,
+      resultDialog: false,
       hasTaken: false,
-      selectedClassifier: null
+      selectedClassifier: null,
+      imageClassification: {
+        predictedLabel: null,
+        probability: 0,
+        predictionExecutionTime: 0
+      },
+      classifications: []
     }
   },
   computed: {
-    ...mapGetters(['allClassifiers'])
+    ...mapGetters(['allClassifiers']),
+    percentage: function () {
+      const { probability } = this.imageClassification
+      if (Number.isNaN(probability) || probability < 0 || probability > 1) {
+        return 0
+      }
+
+      return Math.round((probability + Number.EPSILON) * 1000) / 10
+    }
   },
   methods: {
-    ...mapActions(['fetchClassifiers', 'openModal']),
+    ...mapActions(['fetchClassifiers', 'openModal', 'getAllClassifications', 'getImageClassification']),
     ...mapMutations(['setLoading']),
     takePhoto () {
       const img = document.querySelector('#screenshot img')
@@ -108,19 +178,22 @@ export default {
       canvas.height = video.videoHeight
       canvas.getContext('2d').drawImage(video, 0, 0)
       img.src = canvas.toDataURL('image/webp')
-      this.hasTaken = true
-    },
-    usePhoto () {
-      const video = document.querySelector('#screenshot video')
-      const canvas = document.createElement('canvas')
-
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      canvas.getContext('2d').drawImage(video, 0, 0)
       canvas.toBlob(blob => {
         this.image = new File([blob], 'image.png')
       })
+      this.hasTaken = true
+    },
+    async recognize () {
+      this.classifications = await this.getAllClassifications(this.selectedClassifier)
+      this.imageClassification = await this.getImageClassification({
+        classifier: this.selectedClassifier, file: this.image
+      })
 
+      this.setLoading(true)
+      this.resultDialog = true
+      this.setLoading(false)
+    },
+    usePhoto () {
       this.dialog = false
       this.hasTaken = false
     },
@@ -149,6 +222,16 @@ export default {
             video.srcObject = stream
           })
       })
+    }
+  },
+  watch: {
+    image (value) {
+      const reader = new FileReader()
+
+      reader.onload = e => {
+        this.imageUrl = e.target.result
+      }
+      reader.readAsDataURL(value)
     }
   },
   async mounted () {

@@ -1,5 +1,6 @@
 const STORAGE_URL = `${process.env.VUE_APP_API_URL}/storage`
 const CLASSIFIERS_URL = `${process.env.VUE_APP_API_URL}/classifiers`
+const CLASSIFICATION_URL = `${process.env.VUE_APP_API_URL}/classification`
 
 const storage = {
   state: {
@@ -75,6 +76,17 @@ const storage = {
       const response = await fetch(`${STORAGE_URL}/${folder}`)
       const classifications = await response.json()
       commit('updateFolderClassifications', { folder, classifications })
+    },
+    async getAllClassifications ({ commit }, classifier) {
+      return (await fetch(`${CLASSIFICATION_URL}/${classifier}`)).json()
+    },
+    async getImageClassification ({ commit }, { classifier, file }) {
+      const data = new FormData()
+      data.append('image', file)
+      return (await fetch(`${CLASSIFICATION_URL}/${classifier}`, {
+        method: 'POST',
+        body: data
+      })).json()
     },
     async deleteStorageFolder ({ commit }, folder) {
       const response = await fetch(`${STORAGE_URL}/${folder}`, {
