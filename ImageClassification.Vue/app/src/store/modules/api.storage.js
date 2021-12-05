@@ -17,31 +17,35 @@ const storage = {
       }
     },
     removeFolder (state, { folder }) {
-      const folders = state.folders.filter(x => x.name !== folder)
+      state.folders = state.folders.filter(x => x.name !== folder)
+    },
+    removeClassification (state, { folder, classification }) {
+      const folders = state.folders.map(x => x)
+      const toUpdate = folders.find(x => x.name === folder)
+      if (toUpdate) {
+        toUpdate.classifications = toUpdate.classifications.filter(x => x.classification !== classification)
+      }
       state.folders = folders
     },
     updateFolderName (state, { folder, newName }) {
-      const folders = state.folders.map(x => {
+      state.folders = state.folders.map(x => {
         if (folder === x) {
           folder.name = newName
         }
         return x
       })
-      state.folders = folders
     },
     createNewFolder (state) {
-      const folders = state.folders.map(x => x).concat({ ...{ name: '', fileCount: 0, needSave: true } })
-      state.folders = folders
+      state.folders = state.folders.map(x => x).concat({ ...{ name: '', fileCount: 0, needSave: true } })
     },
     saveFolder (state, { folder }) {
-      const folders = state.folders.map(x => {
+      state.folders = state.folders.map(x => {
         if (x.needSave) {
           x.name = folder
           x.needSave = false
         }
         return x
       })
-      state.folders = folders
     },
     sortFolders (state) {
       state.folders = state.folders.map(x => x).sort((a, b) => a.name.localeCompare(b.name))
@@ -78,7 +82,11 @@ const storage = {
         method: 'DELETE'
       })
 
-      return response.ok
+      if (response.ok) {
+        commit('removeClassification', { folder, classification })
+        return true
+      }
+      return false
     },
     async changeFolderName ({ commit }, { folder, newName }) {
       const response = await fetch(`${STORAGE_URL}/${folder.name}/${newName}`, {
@@ -108,7 +116,6 @@ const storage = {
       const data = new FormData()
       data.append('classification', classification)
       for (const file of files) {
-        debugger
         data.append('files', file)
       }
 

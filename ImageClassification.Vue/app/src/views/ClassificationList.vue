@@ -104,15 +104,16 @@ export default {
         files: this.modalData.files
       })
       this.closeModal()
+      await this.updateClassificationList()
+    },
+    async updateClassificationList () {
       this.setLoading(true)
       await this.fetchStorageFolder(this.name)
       this.setLoading(false)
     }
   },
   async created () {
-    this.setLoading(true)
-    await this.fetchStorageFolder(this.name)
-    this.setLoading(false)
+    await this.updateClassificationList()
   }
 }
 </script>
