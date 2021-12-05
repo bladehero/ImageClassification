@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -104,20 +105,23 @@ namespace ImageClassification.API.Controllers
         /// <summary>
         /// Uploads image to folder for future trainnings.
         /// </summary>
-        /// <param name="image">Image file.</param>
         /// <param name="folder">Folder where file should be uploaded. Folder should be a single section.</param>
-        /// <param name="classification">Classification label.</param>
+        /// <param name="model">Model with classification and image file.</param>
         /// <returns>Returns file name if everything went well.</returns>
         [HttpPost("upload/{folder}")]
+        
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status415UnsupportedMediaType)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Post([Required] string folder, [Required] IFormFile image, [Required] string classification)
+        public async Task<IActionResult> Post([FromRoute] string folder, [FromForm] PostImageViewModel model)
         {
-            var fileName = await _storageService.UploadImage(image, folder, classification);
+            var (classification, formFile) = model;
+            var fileName = await _storageService.UploadImage(formFile, folder, classification);
             return Ok(fileName);
         }
+        
+        public record PostImageViewModel(string Classification, IFormFile File);
 
         /// <summary>
         /// Renames folder with a new name.

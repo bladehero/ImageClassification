@@ -96,6 +96,18 @@ const storage = {
         return true
       }
       return false
+    },
+    async uploadImage ({ commit }, { folder, classification, file }) {
+      const data = new FormData()
+      data.append('file', file)
+      data.append('classification', classification)
+
+      const response = await fetch(`${STORAGE_URL}/upload/${folder}`, {
+        method: 'POST',
+        body: data
+      })
+
+      return response.ok
     }
   },
   getters: {
