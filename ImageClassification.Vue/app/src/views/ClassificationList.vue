@@ -6,7 +6,7 @@
         :key="item.classification"
         class="col-6 col-sm-4 col-md-2 col-lg-1 text-left text-sm-center"
       >
-        <Classification :item="item" />
+        <Classification :value="item" />
       </v-col>
     </v-row>
     <v-dialog
@@ -35,7 +35,7 @@
         <v-card-text>
           <v-row align="center" class="mx-5">
             <v-text-field class="file-label" label="Label" v-model="modalData.label"></v-text-field>
-            <v-file-input label="File" v-model="modalData.file" prepend-icon="" small-chips></v-file-input>
+            <v-file-input label="File" v-model="modalData.files" prepend-icon="" small-chips multiple></v-file-input>
           </v-row>
         </v-card-text>
         <v-card-actions>
@@ -79,7 +79,7 @@ export default {
       dialog: false,
       compiledResult: '',
       modalData: {
-        file: null,
+        files: null,
         label: null
       }
     }
@@ -92,7 +92,7 @@ export default {
     ...mapMutations(['setLoading']),
     closeModal () {
       this.modalData = {
-        file: null,
+        files: null,
         label: null
       }
       this.dialog = false
@@ -101,7 +101,7 @@ export default {
       await this.uploadImage({
         folder: this.name,
         classification: this.modalData.label,
-        file: this.modalData.file
+        files: this.modalData.files
       })
       this.closeModal()
       this.setLoading(true)

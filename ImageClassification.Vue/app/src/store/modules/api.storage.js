@@ -73,6 +73,13 @@ const storage = {
       }
       return false
     },
+    async deleteStorageFolderClassification ({ commit }, { folder, classification }) {
+      const response = await fetch(`${STORAGE_URL}/${folder}/${classification}`, {
+        method: 'DELETE'
+      })
+
+      return response.ok
+    },
     async changeFolderName ({ commit }, { folder, newName }) {
       const response = await fetch(`${STORAGE_URL}/${folder.name}/${newName}`, {
         method: 'PUT'
@@ -97,10 +104,13 @@ const storage = {
       }
       return false
     },
-    async uploadImage ({ commit }, { folder, classification, file }) {
+    async uploadImage ({ commit }, { folder, classification, files }) {
       const data = new FormData()
-      data.append('file', file)
       data.append('classification', classification)
+      for (const file of files) {
+        debugger
+        data.append('files', file)
+      }
 
       const response = await fetch(`${STORAGE_URL}/upload/${folder}`, {
         method: 'POST',

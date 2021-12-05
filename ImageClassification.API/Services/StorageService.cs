@@ -91,7 +91,7 @@ namespace ImageClassification.API.Services
             Directory.Move(folderPath, destinationPath);
         }
 
-        public void DeleteFolder(string folder, bool deleteContent = true)
+        public void DeleteFolder(string folder, string classification = null, bool deleteContent = true)
         {
             var path = Path.Join(_hostingEnvironment.ContentRootPath, _storageOptions.StoragePath);
             if (!Directory.Exists(path))
@@ -99,7 +99,7 @@ namespace ImageClassification.API.Services
                 throw new DirectoryNotFoundException("Storage directory not found!");
             }
 
-            var folderPath = Path.Join(path, folder);
+            var folderPath = Path.Join(path, folder, classification ?? string.Empty);
             if (!Directory.Exists(folderPath))
             {
                 throw new DirectoryNotFoundException($"Directory `{folder}` not found");
@@ -180,53 +180,55 @@ namespace ImageClassification.API.Services
                 File.Move(file.Path, updated);
             }
         }
-        public async Task<string> UploadImage(IFormFile imageFile, string folder, string classification)
+        public async IAsyncEnumerable<string> UploadImages(IEnumerable<IFormFile> imageFiles, string folder, string classification)
         {
-            if (imageFile.Length == 0)
+            var formFiles = imageFiles as IFormFile[] ?? imageFiles.ToArray();
+            if (formFiles.Any(x => x.Length == 0))
                 throw new EmptyFileException();
 
             folder = ValidateSingleFolder(folder);
             classification = ValidateSingleFolder(classification);
 
-            var imageMemoryStream = new MemoryStream();
-            await imageFile.CopyToAsync(imageMemoryStream);
-
-            var imageData = imageMemoryStream.ToArray();
-            if (!imageData.IsValidImage())
+            foreach (var imageFile in formFiles)
             {
-                throw new ImageFormatException(ImageExtensions.CanBeUsed.Select(x => x.GetDescription()));
-            }
+                var imageMemoryStream = new MemoryStream();
+                await imageFile.CopyToAsync(imageMemoryStream);
 
-            _logger.LogInformation("Started uploading process...");
-
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-
-            var extension = Path.GetExtension(imageFile.FileName);
-            var name = Path.ChangeExtension(classification, extension);
-            var path = Path.Combine(_storageOptions.StoragePath, folder, classification);
-            Directory.CreateDirectory(path);
-            var fileName = Path.Join(path, name);
-            var index = 1;
-
-            using (var stream = imageFile.OpenReadStream())
-            {
-                var files = Directory.GetFiles(path);
-                while (files.Any(x => Path.GetFileNameWithoutExtension(NormalizePath(x)) == Path.GetFileNameWithoutExtension(NormalizePath(fileName))))
+                var imageData = imageMemoryStream.ToArray();
+                if (!imageData.IsValidImage())
                 {
-                    fileName = Path.Combine(path, Path.ChangeExtension($"{classification}{_sourceUploadOptions.Build(index++)}", extension));
+                    throw new ImageFormatException(ImageExtensions.CanBeUsed.Select(x => x.GetDescription()));
                 }
 
-                fileName = fileName.Replace("\\", "/");
-                using var fs = new FileStream(fileName, FileMode.CreateNew);
-                await stream.CopyToAsync(fs);
+                _logger.LogInformation("Started uploading process...");
+
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+
+                var extension = Path.GetExtension(imageFile.FileName);
+                var name = Path.ChangeExtension(classification, extension);
+                var path = Path.Combine(_storageOptions.StoragePath, folder, classification);
+                Directory.CreateDirectory(path);
+                var fileName = Path.Join(path, name);
+                var index = 1;
+
+                await using (var stream = imageFile.OpenReadStream())
+                {
+                    var files = Directory.GetFiles(path);
+                    while (files.Any(x => Path.GetFileNameWithoutExtension(NormalizePath(x)) == Path.GetFileNameWithoutExtension(NormalizePath(fileName))))
+                    {
+                        fileName = Path.Combine(path, Path.ChangeExtension($"{classification}{_sourceUploadOptions.Build(index++)}", extension));
+                    }
+
+                    fileName = fileName.Replace("\\", "/");
+                    await using var fs = new FileStream(fileName, FileMode.CreateNew);
+                    await stream.CopyToAsync(fs);
+                }
+
+                watch.Stop();
+                var elapsedMs = watch.ElapsedMilliseconds;
+                _logger.LogInformation($"Image uploaded in {elapsedMs} milliseconds");
+                yield return fileName.TrimStart(_storageOptions.StoragePath);
             }
-
-            watch.Stop();
-            var elapsedMs = watch.ElapsedMilliseconds;
-            _logger.LogInformation($"Image uploaded in {elapsedMs} miliseconds");
-
-            var result = fileName.TrimStart(_storageOptions.StoragePath);
-            return result;
         }
 
         #region Helpers

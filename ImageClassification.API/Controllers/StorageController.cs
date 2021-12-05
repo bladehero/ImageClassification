@@ -103,25 +103,25 @@ namespace ImageClassification.API.Controllers
         }
 
         /// <summary>
-        /// Uploads image to folder for future trainnings.
+        /// Uploads image to folder for future trainings.
         /// </summary>
         /// <param name="folder">Folder where file should be uploaded. Folder should be a single section.</param>
         /// <param name="model">Model with classification and image file.</param>
         /// <returns>Returns file name if everything went well.</returns>
         [HttpPost("upload/{folder}")]
         
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status415UnsupportedMediaType)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Post([FromRoute] string folder, [FromForm] PostImageViewModel model)
         {
-            var (classification, formFile) = model;
-            var fileName = await _storageService.UploadImage(formFile, folder, classification);
-            return Ok(fileName);
+            var (classification, files) = model;
+            var fileNames = await _storageService.UploadImages(files, folder, classification).ToListAsync();
+            return Ok(fileNames);
         }
         
-        public record PostImageViewModel(string Classification, IFormFile File);
+        public record PostImageViewModel(string Classification, IEnumerable<IFormFile> Files);
 
         /// <summary>
         /// Renames folder with a new name.
@@ -144,16 +144,17 @@ namespace ImageClassification.API.Controllers
         /// Removes folder from a list.
         /// </summary>
         /// <param name="folder">Folder where file should be uploaded. Folder should be a single section.</param>
+        /// <param name="classification">Classification in folder, optional.</param>
         /// <param name="deleteContent">If true - recursively removes content from folder, otherwise only removes folder if empty.</param>
         /// <returns>Success if image is removed.</returns>
-        [HttpDelete("{folder}")]
+        [HttpDelete("{folder}/{classification?}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorVM), StatusCodes.Status500InternalServerError)]
-        public IActionResult Delete([Required] string folder, bool deleteContent = true)
+        public IActionResult Delete([Required] string folder, string? classification = null, bool deleteContent = true)
         {
-            _storageService.DeleteFolder(folder, deleteContent);
+            _storageService.DeleteFolder(folder, classification, deleteContent);
             return Ok();
         }
 
