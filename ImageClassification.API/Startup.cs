@@ -113,8 +113,8 @@ namespace ImageClassification.API
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
                 endpoints.MapHub<TrainLogHub>("/trainLog");
+                endpoints.MapFallbackToFile("index.html");
             });
-
         }
     }
 }

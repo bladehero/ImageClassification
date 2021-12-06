@@ -26,7 +26,7 @@
               dark
               v-bind="attrs"
               v-on="on"
-              @click="openModal"
+              @click="openPhotoModal"
             >
               Take photo
             </v-btn>
@@ -133,6 +133,26 @@
         </v-card>
       </template>
     </v-dialog>
+    <v-dialog
+      v-model="dialogRecognizing"
+      hide-overlay
+      persistent
+      width="300"
+    >
+      <v-card
+        color="primary"
+        dark
+      >
+        <v-card-text>
+          Recognizing...
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="mb-0"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -146,6 +166,7 @@ export default {
       imageUrl: '',
       dialog: false,
       resultDialog: false,
+      dialogRecognizing: false,
       hasTaken: false,
       selectedClassifier: null,
       imageClassification: {
@@ -178,12 +199,12 @@ export default {
       ]
 
       return toMatch.some((toMatchItem) => {
-        return navigator.userAgent.match(toMatchItem);
+        return navigator.userAgent.match(toMatchItem)
       })
     }
   },
   methods: {
-    ...mapActions(['fetchClassifiers', 'openModal', 'getAllClassifications', 'getImageClassification']),
+    ...mapActions(['fetchClassifiers', 'getAllClassifications', 'getImageClassification']),
     ...mapMutations(['setLoading']),
     takePhoto () {
       const img = document.querySelector('#screenshot img')
@@ -200,14 +221,13 @@ export default {
       this.hasTaken = true
     },
     async recognize () {
+      this.dialogRecognizing = true
       this.classifications = await this.getAllClassifications(this.selectedClassifier)
       this.imageClassification = await this.getImageClassification({
         classifier: this.selectedClassifier, file: this.image
       })
-
-      this.setLoading(true)
+      this.dialogRecognizing = false
       this.resultDialog = true
-      this.setLoading(false)
     },
     usePhoto () {
       this.dialog = false
@@ -217,7 +237,7 @@ export default {
       this.image = null
       this.hasTaken = false
     },
-    openModal () {
+    openPhotoModal () {
       this.dialog = true
       this.$nextTick(() => {
         const video = document.querySelector('#screenshot video')
