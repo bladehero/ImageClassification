@@ -175,11 +175,11 @@ export default {
         /iPod/i,
         /BlackBerry/i,
         /Windows Phone/i
-      ];
+      ]
 
       return toMatch.some((toMatchItem) => {
         return navigator.userAgent.match(toMatchItem);
-      });
+      })
     }
   },
   methods: {
