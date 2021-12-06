@@ -13,8 +13,9 @@
       <p class="font-weight-bold subtitle-1 text-center">AND</p>
       <p class="font-weight-light subtitle-1 text-center  ">Select image</p>
       <v-file-input accept="image/*" label="Image" prepend-icon="mdi-camera" flat v-model="image" />
-      <p class="font-weight-bold subtitle-1 text-center">OR</p>
+      <p v-if="!isMobile" class="font-weight-bold subtitle-1 text-center">OR</p>
       <v-dialog
+        v-if="!isMobile"
         v-model="dialog"
         fullscreen
       >
@@ -32,7 +33,7 @@
           </div>
         </template>
         <v-card id="screenshot">
-          <video autoplay></video>
+          <video autoplay playsinline></video>
           <img v-show="hasTaken" alt="" src="">
           <canvas style="display:none;"></canvas>
           <v-btn
@@ -164,6 +165,9 @@ export default {
       }
 
       return Math.round((probability + Number.EPSILON) * 1000) / 10
+    },
+    isMobile: function () {
+      return typeof screen.orientation !== 'undefined'
     }
   },
   methods: {
